@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StarWhiteNote | 个人笔记与资料共享站</title>
+  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+</head>
+<body class="theme-light">
+  <!-- Top Navigation Header -->
+  <header class="navbar">
+    <div class="nav-left">
+      <div class="logo">
+        <span class="logo-icon">⭐</span>
+        <div class="logo-text">
+          <span class="logo-title">StarWhiteNote</span>
+          <span class="logo-subtitle">个人笔记与资料共享站</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-tab="notes">📚 全部笔记与文件</button>
+        <button class="nav-tab" data-tab="guide">📖 GitHub 更新指南</button>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="globalSearch" placeholder="搜索笔记、图片或文档...">
+      </div>
+
+      <button id="themeToggleBtn" class="icon-btn" title="切换明亮/暗黑模式">🌙</button>
+
+      <a id="githubRepoLink" class="btn btn-outline btn-sm" href="https://github.com/StarWhiteIsBusy/StarWhiteNote" target="_blank" title="前往 GitHub 仓库">
+        <span>🐙</span> GitHub 仓库
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-content">
+    <!-- Minimalist Stats Strip -->
+    <section class="stats-strip">
+      <div class="stat-pill">
+        <span class="stat-indicator"></span>
+        <span class="stat-label">笔记主题</span>
+        <strong class="stat-num" id="statNotesCount">0</strong>
+      </div>
+      <div class="stat-divider">·</div>
+      <div class="stat-pill">
+        <span class="stat-label">关联资料</span>
+        <strong class="stat-num" id="statFilesCount">0</strong>
+      </div>
+      <div class="stat-divider">·</div>
+      <div class="stat-pill">
+        <span class="stat-label">分类标签</span>
+        <strong class="stat-num" id="statTagsCount">0</strong>
+      </div>
+      <div class="stat-divider">·</div>
+      <div class="stat-pill stat-pill-highlight cdn-pill" id="cdnTogglePill" title="点击切换加速线路 (已默认启用 GitHub Pages 全球 CDN 极速加速)">
+        <span class="cdn-status-dot"></span>
+        <span class="stat-badge" id="cdnBadgeText">⚡ GitHub Pages 全球加速 (默认开启)</span>
+      </div>
+    </section>
+
+    <!-- TAB 1: 笔记与资料中心 (主体) -->
+    <section id="tab-notes" class="tab-pane active">
+      <div class="section-toolbar">
+        <!-- Dynamic Tag Bar -->
+        <div class="tags-filter-bar" id="tagsFilterBar">
+          <div class="tags-list" id="tagsList">
+            <button class="tag-pill active" data-tag="all">全部笔记</button>
+            <!-- Dynamic tags pills injected here -->
+          </div>
+        </div>
+
+        <div class="toolbar-actions">
+          <span class="note-counter-hint" id="notesFilterHint">显示全部笔记</span>
+        </div>
+      </div>
+
+      <!-- Notes & Bound Files Grid -->
+      <div class="notes-grid" id="notesList">
+        <div class="loading-placeholder">正在加载笔记与文件列表...</div>
+      </div>
+    </section>
+
+    <!-- TAB 2: GitHub 更新指南 -->
+    <section id="tab-guide" class="tab-pane" style="display: none;">
+      <div class="guide-container">
+        <div class="notice-card" style="margin-bottom: 1.5rem;">
+          <div class="notice-title">💡 站长如何在 GitHub 上更新笔记与文件？</div>
+          <p>你的所有笔记与文件都存放在 GitHub 仓库中。任何人打开本站只能<strong>高速浏览、排版级预览和下载</strong>；只有你能登录你的 GitHub 账号添加或修改内容。</p>
+        </div>
+
+        <div class="guide-steps-grid">
+          <div class="guide-card">
+            <div class="step-badge">步骤 1</div>
+            <h3>📂 在 GitHub 上传文件或图片</h3>
+            <p>登录 github.com，进入你的项目仓库，点击进入 <code>files/</code> 文件夹：</p>
+            <ul>
+              <li>点击右上角的 <strong>【Add file】->【Upload files】</strong></li>
+              <li>把你的 Word 文档（<code>.docx</code>）、Excel 表格（<code>.xlsx</code>）、高清图片或 PDF 拖进网页</li>
+              <li>点击底部的绿色 <strong>【Commit changes】</strong> 提交保存</li>
+            </ul>
+          </div>
+
+          <div class="guide-card">
+            <div class="step-badge">步骤 2</div>
+            <h3>✍️ 在 notes.json 中登记笔记</h3>
+            <p>在仓库根目录下点击打开 <strong><code>notes.json</code></strong> 文件，点击右上角的 ✏️ 铅笔图标进行在线编辑：</p>
+            <pre style="background:var(--bg-main); padding:0.8rem; border-radius:6px; font-size:0.82rem; overflow:auto;"><code>{
+  "id": "my-new-note",
+  "title": "我的新笔记标题",
+  "tags": ["工作方案", "Word文档"],
+  "date": "2026-11-12",
+  "content": "这里是笔记的内容与详细说明文字...",
+  "images": [
+    { "name": "架构图.png", "url": "files/架构图.png", "size": 25000 }
+  ],
+  "files": [
+    { "name": "设计手册.docx", "url": "files/设计手册.docx", "size": 32000 }
+  ]
+}</code></pre>
+            <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">仿照上面的格式追加一条笔记即可。你填写的 <code>tags</code> 标签会自动出现在网站顶部的筛选栏中！</p>
+          </div>
+
+          <div class="guide-card">
+            <div class="step-badge">步骤 3</div>
+            <h3>🚀 自动生效并全球秒开</h3>
+            <p>提交保存后，GitHub Pages 会自动同步更新（通常 30 秒至 1 分钟）。</p>
+            <p>刷新你的网站，所有人就能立刻看到最新笔记，并享受在线 Word 完整排版预览与下载！</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Note Reader Modal (Full Note Content & Attachments) -->
+  <div id="noteReaderModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-reader">
+      <div class="modal-header">
+        <div class="reader-header-meta">
+          <div class="reader-tags" id="readerTags"></div>
+          <span class="reader-date" id="readerDate"></span>
+        </div>
+        <button class="close-btn" id="closeReaderBtn">&times;</button>
+      </div>
+
+      <div class="reader-body">
+        <h1 class="reader-title" id="readerTitle">笔记标题</h1>
+
+        <div class="reader-content markdown-body" id="readerContent">
+          <!-- Text content rendered here -->
+        </div>
+
+        <!-- Attached Images Section -->
+        <div class="reader-section" id="readerImagesSection" style="display: none;">
+          <h4 class="reader-section-title">
+            <span>🖼️ 关联图片</span>
+            <span class="badge" id="readerImageCount">0</span>
+          </h4>
+          <div class="reader-images-grid" id="readerImagesGrid">
+            <!-- Image thumbs injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Attached Document Files Section -->
+        <div class="reader-section" id="readerAttachmentsSection" style="display: none;">
+          <h4 class="reader-section-title">
+            <span>📎 关联文件与文档</span>
+            <span class="badge" id="readerDocCount">0</span>
+          </h4>
+          <div class="reader-docs-list" id="readerDocsList">
+            <!-- Document items injected dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer reader-footer">
+        <button id="copyNoteContentBtn" class="btn btn-outline btn-sm">📋 复制笔记全文</button>
+        <button class="btn btn-primary btn-sm" id="closeReaderFooterBtn">完成阅读</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. High-Fidelity In-Browser File Preview Modal -->
+  <div id="filePreviewModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-preview">
+      <div class="modal-header preview-header">
+        <div class="preview-title-wrap">
+          <span class="preview-icon" id="previewFileIcon">📄</span>
+          <div>
+            <h3 class="preview-title" id="previewFileName">文件名.docx</h3>
+            <span class="preview-size" id="previewFileSize">1.2 MB</span>
+          </div>
+        </div>
+        <div class="preview-header-actions">
+          <button class="btn btn-sm btn-outline" id="previewNewTabBtn" title="在新标签页中打开">↗️ 新窗口</button>
+          <button class="close-btn" id="closePreviewBtn">&times;</button>
+        </div>
+      </div>
+      <div class="preview-body" id="previewContainer">
+        <!-- Injected dynamically: Word rendering, Excel rendering, img, video, audio, iframe, or text -->
+      </div>
+      <div class="modal-footer preview-modal-footer">
+        <span class="preview-hint" id="previewHintText"></span>
+        <a id="previewDownloadBtn" class="btn btn-primary" href="#" target="_blank" download>⬇️ 立即下载此文件</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Core App Logic (Pure Static, loads immediately) -->
+  <script src="app.js?v=3"></script>
+  <!-- Heavy Preview Engines (Deferred background loading for instant initial render) -->
+  <script src="jszip.min.js" defer></script>
+  <script src="docx-preview.min.js" defer></script>
+  <script src="mammoth.browser.min.js" defer></script>
+  <script src="xlsx.full.min.js" defer></script>
+</body>
+</html>
