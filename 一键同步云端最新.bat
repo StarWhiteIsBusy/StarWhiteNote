@@ -1,29 +1,29 @@
 @echo off
-chcp 65001 >nul
-title StarWhiteNote - ä¸€é”®ä» GitHub åŒæ­¥æœ€æ–°æ–‡ä»¶
 cd /d "%~dp0"
+title StarWhiteNote - Ò»¼ü´Ó GitHub Í¬²½×îĞÂÎÄ¼ş
 
 echo ==========================================================
-echo       ğŸ“¥ StarWhiteNote - ä¸€é”®ä» GitHub åŒæ­¥æœ€æ–°æ–‡ä»¶
+echo        StarWhiteNote - Ò»¼ü´Ó GitHub Í¬²½×îĞÂÎÄ¼ş
 echo ==========================================================
 echo.
 
+set "GIT_EXE=git"
 where git >nul 2>nul
 if %errorlevel% neq 0 (
     if exist "C:\Program Files\Git\cmd\git.exe" (
-        set "PATH=C:\Program Files\Git\cmd;%PATH%"
+        set "GIT_EXE=C:\Program Files\Git\cmd\git.exe"
     )
 )
 
-echo æ­£åœ¨ä»äº‘ç«¯æ‹‰å–æœ€æ–°æ›´æ–°...
-git pull origin main
+echo ÕıÔÚ´ÓÔÆ¶ËÀ­È¡×îĞÂ¸üĞÂ...
+"%GIT_EXE%" pull origin main
 
 if %errorlevel% equ 0 (
     echo.
-    echo âœ… åŒæ­¥æˆåŠŸï¼æœ¬åœ°æ–‡ä»¶å·²ä¸ GitHub äº‘ç«¯å®Œå…¨ä¿æŒä¸€è‡´ï¼
+    echo [OK] Í¬²½³É¹¦£¡±¾µØÎÄ¼şÒÑÓë GitHub ÔÆ¶ËÍêÈ«±£³ÖÒ»ÖÂ£¡
 ) else (
     echo.
-    echo âš ï¸ åŒæ­¥æç¤ºï¼šå¦‚æœæœ¬åœ°æœ‰æœªä¿å­˜çš„ä¿®æ”¹ï¼Œè¯·å…ˆæäº¤æˆ–è¿è¡Œã€ä¸€é”®å‘å¸ƒåˆ°GitHub.batã€‘ã€‚
+    echo [ÌáÊ¾] Í¬²½Óöµ½ÎÊÌâ£¬Èç¹û±¾µØÓĞĞŞ¸ÄÇëÏÈÔËĞĞ¡¾Ò»¼ü·¢²¼µ½GitHub.bat¡¿¡£
 )
 
 echo.

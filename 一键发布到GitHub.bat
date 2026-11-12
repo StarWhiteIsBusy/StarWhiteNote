@@ -1,77 +1,53 @@
 @echo off
-chcp 65001 >nul
-title StarWhiteNote - ä¸€é”®å‘å¸ƒæ›´æ–°åˆ° GitHub
 cd /d "%~dp0"
+title StarWhiteNote - Ò»¼ü·¢²¼µ½ GitHub
 
 echo ==========================================================
-echo        â­ StarWhiteNote - ä¸€é”®åŒæ­¥å‘å¸ƒåˆ° GitHub
+echo        StarWhiteNote - Ò»¼ü·¢²¼µ½ GitHub
 echo ==========================================================
 echo.
 
+set "GIT_EXE=git"
 where git >nul 2>nul
 if %errorlevel% neq 0 (
     if exist "C:\Program Files\Git\cmd\git.exe" (
-        set "PATH=C:\Program Files\Git\cmd;%PATH%"
+        set "GIT_EXE=C:\Program Files\Git\cmd\git.exe"
     )
 )
 
-where git >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [æç¤º] å°šæœªæ£€æµ‹åˆ° Git è¿è¡Œç¯å¢ƒã€‚
-    echo è¯·ç¡®è®¤ Git æ˜¯å¦å®‰è£…åœ¨æ ‡å‡†è·¯å¾„ã€‚
-    pause
-    exit /b 1
-)
-
-:: Ensure git repo is initialized
-if not exist ".git" (
-    echo æ­£åœ¨åˆå§‹åŒ– Git ä»“åº“...
-    git init
-    git branch -M main
-)
-
-:: Ensure remote origin is set
-git remote get-url origin >nul 2>nul
-if %errorlevel% neq 0 (
-    echo æ­£åœ¨é…ç½® GitHub ä»“åº“åœ°å€...
-    git remote add origin https://github.com/StarWhiteIsBusy/StarWhiteNote.git
-)
-
-echo ç›®æ ‡ä»“åº“: https://github.com/StarWhiteIsBusy/StarWhiteNote.git
+echo Ä¿±ê²Ö¿â: https://github.com/StarWhiteIsBusy/StarWhiteNote.git
 echo.
-echo æ­£åœ¨æ£€æŸ¥æœ¬åœ°æ–‡ä»¶å˜åŠ¨...
-git status --short
+echo ÕıÔÚ¼ì²é±¾µØÎÄ¼ş±ä¶¯...
+"%GIT_EXE%" status --short
 echo.
 
-set /p commit_msg="è¯·è¾“å…¥æœ¬æ¬¡æ›´æ–°è¯´æ˜ï¼ˆç›´æ¥æŒ‰å›è½¦é»˜è®¤ä½¿ç”¨å½“å‰æ—¶é—´ï¼‰: "
-if "%commit_msg%"=="" (
-    set commit_msg=æ›´æ–°ç¬”è®°ä¸é™„ä»¶èµ„æ–™ %date% %time:~0,5%
-)
+set "commit_msg="
+set /p commit_msg="ÇëÊäÈë±¾´Î¸üĞÂËµÃ÷£¨Ö±½Ó°´»Ø³µÄ¬ÈÏÊ¹ÓÃµ±Ç°Ê±¼ä£©: "
+if not defined commit_msg set commit_msg=Update notes %date% %time:~0,5%
 
 echo.
-echo [1/3] æ­£åœ¨æ·»åŠ æ–‡ä»¶åˆ°æš‚å­˜åŒº (git add) ...
-git add .
+echo [1/3] ÕıÔÚÌí¼ÓÎÄ¼şµ½Ôİ´æÇø (git add) ...
+"%GIT_EXE%" add .
 
-echo [2/3] æ­£åœ¨åˆ›å»ºæäº¤ç‰ˆæœ¬ (git commit) ...
-git commit -m "%commit_msg%"
+echo [2/3] ÕıÔÚ´´½¨Ìá½»°æ±¾ (git commit) ...
+"%GIT_EXE%" commit -m "%commit_msg%"
 
-echo [3/3] æ­£åœ¨æ¨é€åˆ° GitHub äº‘ç«¯ (git push) ...
-git push -u origin main
+echo [3/3] ÕıÔÚÍÆËÍµ½ GitHub ÔÆ¶Ë (git push) ...
+"%GIT_EXE%" push -u origin main
 
 if %errorlevel% equ 0 (
     echo.
     echo ==========================================================
-    echo âœ… å‘å¸ƒæˆåŠŸï¼
-    echo ä½ çš„ç½‘ç«™åœ°å€: https://starwhiteisbusy.github.io/StarWhiteNote/
-    echo GitHub Pages å°†åœ¨ 30 ç§’è‡³ 1 åˆ†é’Ÿå†…å…¨ç½‘è‡ªåŠ¨åŒæ­¥ç”Ÿæ•ˆï¼
+    echo [OK] ·¢²¼³É¹¦£¡
+    echo ÄãµÄÍøÕ¾µØÖ·: https://starwhiteisbusy.github.io/StarWhiteNote/
+    echo GitHub Pages ½«ÔÚ 30 ÃëÖÁ 1 ·ÖÖÓÄÚÈ«Íø×Ô¶¯Í¬²½ÉúĞ§£¡
     echo ==========================================================
 ) else (
     echo.
     echo ==========================================================
-    echo [æç¤º] æ¨é€éœ€è¦ç™»å½•æˆæƒï¼Œæˆ–äº‘ç«¯æœ‰æ›´æ–°æ–‡ä»¶ã€‚
-    echo æ­£åœ¨å°è¯•æ‹‰å–åˆå¹¶æœ€æ–°æ–‡ä»¶...
-    git pull origin main --rebase --allow-unrelated-histories
-    git push -u origin main
+    echo [ÌáÊ¾] ÕıÔÚ³¢ÊÔÀ­È¡ºÏ²¢ÔÆ¶Ë¸üĞÂ²¢ÖØĞÂÍÆËÍ...
+    "%GIT_EXE%" pull origin main --rebase --allow-unrelated-histories
+    "%GIT_EXE%" push -u origin main
     echo ==========================================================
 )
 
