@@ -211,56 +211,116 @@
     return `<p>${html}</p>`;
   }
 
-  // --- Data Loading (Fetch static notes.json) ---
-  async function loadNotesData() {
-    el.notesList.innerHTML = '<div class="loading-placeholder">正在加载笔记与文件列表...</div>';
+  // --- Data Loading (Auto-sync GitHub Releases as Notes CMS) ---
+  const GITHUB_RELEASES_API = 'https://api.github.com/repos/StarWhiteIsBusy/StarWhiteNote/releases';
+
+  function transformReleaseToNote(rel) {
+    // 1. Tag name -> tags array (supports comma/space separated tags like: 英语, 思维导图)
+    const rawTag = (rel.tag_name || '未分类').trim();
+    const tags = rawTag.split(/[,;\s/]+/).map(t => t.trim()).filter(Boolean);
+
+    // 2. Assets -> images & files
+    const images = [];
+    const files = [];
+    (rel.assets || []).forEach(asset => {
+      const ext = (asset.name || '').split('.').pop().toLowerCase();
+      const isImg = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
+      const item = {
+        name: asset.name,
+        url: asset.browser_download_url,
+        size: asset.size || 0
+      };
+      if (isImg) images.push(item);
+      else files.push(item);
+    });
+
+    return {
+      id: `rel-${rel.id}`,
+      title: rel.name || rel.tag_name || '未命名笔记',
+      tags: tags.length ? tags : ['未分类'],
+      date: (rel.published_at || rel.created_at || '').slice(0, 10),
+      content: rel.body || '（无详细说明正文）',
+      images,
+      files,
+      isRelease: true,
+      htmlUrl: rel.html_url
+    };
+  }
+
+  async function loadNotesData(isManualSync = false) {
+    if (el.notesList && !isManualSync) {
+      el.notesList.innerHTML = '<div class="loading-placeholder">正在从 GitHub 云端同步最新笔记与思维导图...</div>';
+    }
+    let cloudNotes = [];
+    let localNotes = [];
+
+    // 1. Try fetching live GitHub Releases
     try {
-      // Load notes.json with timestamp to avoid browser caching
+      const res = await fetch(GITHUB_RELEASES_API);
+      if (res.ok) {
+        const releases = await res.json();
+        if (Array.isArray(releases) && releases.length > 0) {
+          cloudNotes = releases.map(transformReleaseToNote);
+          localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
+        }
+      }
+    } catch (e) {
+      console.warn('GitHub API fetch failed (offline or rate limit), reading cache:', e);
+      const cached = localStorage.getItem('starwhite_releases_cache');
+      if (cached) {
+        try { cloudNotes = JSON.parse(cached); } catch (_) {}
+      }
+    }
+
+    // 2. Read local notes.json as base / fallback
+    try {
       const res = await fetch(`notes.json?_t=${Date.now()}`);
-      if (!res.ok) {
-        throw new Error(`无法读取 notes.json (HTTP ${res.status})`);
-      }
-      notes = await res.json();
-
-      // Normalize notes schema (support both .files and .attachments)
-      notes.forEach((n, idx) => {
-        n.id = n.id || `note-${idx + 1}`;
-        n.tags = Array.isArray(n.tags) ? n.tags : [];
-        n.images = Array.isArray(n.images) ? n.images : [];
-        n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
-      });
-
-      // Extract unique tags across all notes automatically
-      const tagSet = new Set();
-      let totalFiles = 0;
-      for (const n of notes) {
-        (n.tags || []).forEach(t => {
-          if (t && t.trim()) tagSet.add(t.trim());
+      if (res.ok) {
+        localNotes = await res.json();
+        localNotes.forEach((n, idx) => {
+          n.id = n.id || `local-${idx + 1}`;
+          n.tags = Array.isArray(n.tags) ? n.tags : [];
+          n.images = Array.isArray(n.images) ? n.images : [];
+          n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
         });
-        totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
       }
-      allTags = Array.from(tagSet);
+    } catch (_) {}
 
-      // Update Stats
-      el.statNotesCount.textContent = notes.length;
-      el.statFilesCount.textContent = totalFiles;
-      el.statTagsCount.textContent = allTags.length;
+    // 3. Merge: Cloud Releases take top priority, followed by local guides
+    notes = [...cloudNotes, ...localNotes];
 
-      renderTagsBar();
-      renderNotes();
-    } catch (err) {
-      console.error('Error loading notes.json:', err);
+    if (notes.length === 0) {
       el.notesList.innerHTML = `
-        <div class="loading-placeholder">
-          <div style="font-size:2rem; margin-bottom:0.5rem;">⚠️</div>
-          <strong style="color:var(--text-main);">未找到笔记数据文件</strong>
-          <p style="margin-top:0.3rem; color:var(--text-muted); font-size:0.85rem;">${err.message}</p>
-          <p style="margin-top:0.2rem; color:var(--text-muted); font-size:0.85rem;">请确保项目根目录下存在 <code>notes.json</code> 文件</p>
-          <button class="btn btn-primary btn-sm" id="retryLoadBtn" style="margin-top:0.8rem;">🔄 点击重试</button>
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h3>尚未发布任何笔记或思维导图</h3>
+          <p>可以在 GitHub 仓库右侧点击【Releases】->【Draft a new release】快速发布第一篇笔记！</p>
         </div>
       `;
-      const retryBtn = document.getElementById('retryLoadBtn');
-      if (retryBtn) retryBtn.onclick = loadNotesData;
+      return;
+    }
+
+    // Extract unique tags across all notes automatically
+    const tagSet = new Set();
+    let totalFiles = 0;
+    for (const n of notes) {
+      (n.tags || []).forEach(t => {
+        if (t && t.trim()) tagSet.add(t.trim());
+      });
+      totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
+    }
+    allTags = Array.from(tagSet);
+
+    // Update Stats
+    el.statNotesCount.textContent = notes.length;
+    el.statFilesCount.textContent = totalFiles;
+    el.statTagsCount.textContent = allTags.length;
+
+    renderTagsBar();
+    renderNotes();
+
+    if (isManualSync) {
+      showToast(`✅ 已同步最新云端 Release！共 ${notes.length} 篇笔记`, 'success');
     }
   }
 
@@ -847,6 +907,17 @@
       el.closePreviewBtn.onclick = () => {
         resetPreviewFullscreen();
         if (el.filePreviewModal) el.filePreviewModal.style.display = 'none';
+      };
+    }
+
+    // Sync Releases Button
+    const syncBtn = document.getElementById('syncReleasesBtn');
+    if (syncBtn) {
+      syncBtn.onclick = () => {
+        syncBtn.style.transform = 'rotate(180deg)';
+        syncBtn.style.transition = 'transform 0.5s ease';
+        setTimeout(() => { syncBtn.style.transform = 'none'; }, 500);
+        loadNotesData(true);
       };
     }
 
