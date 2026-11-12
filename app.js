@@ -60,7 +60,8 @@
     previewContainer: document.getElementById('previewContainer'),
     previewHintText: document.getElementById('previewHintText'),
     previewDownloadBtn: document.getElementById('previewDownloadBtn'),
-    previewNewTabBtn: document.getElementById('previewNewTabBtn'),
+    previewFullscreenBtn: document.getElementById('previewFullscreenBtn'),
+    previewHeaderActionBtn: document.getElementById('previewHeaderActionBtn'),
 
     toastContainer: document.getElementById('toastContainer')
   };
@@ -105,6 +106,25 @@
       }
     }
     return url;
+  }
+
+  const GITHUB_REPO_URL = 'https://github.com/StarWhiteIsBusy/StarWhiteNote';
+
+  function resolveAssetUrl(item) {
+    if (!item) return '';
+    // 1. If explicit URL provided
+    if (item.url) {
+      if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
+        return item.url;
+      }
+      return getAcceleratedUrl(item.url);
+    }
+    // 2. If GitHub Release tag specified (e.g. release: "assets" or "v1.0")
+    if (item.release) {
+      return `${GITHUB_REPO_URL}/releases/download/${item.release}/${encodeURIComponent(item.name)}`;
+    }
+    // 3. Fallback to files/ directory
+    return getAcceleratedUrl(`files/${item.name}`);
   }
 
   function formatBytes(bytes) {
@@ -322,8 +342,7 @@
         imagesHtml = `
           <div class="note-card-images">
             ${displayImgs.map((img, idx) => {
-              const rawUrl = img.url || `files/${img.name}`;
-              const imgUrl = getAcceleratedUrl(rawUrl);
+              const imgUrl = resolveAssetUrl(img);
               return `
                 <div class="note-thumb-wrapper preview-img-trigger" data-url="${escapeHTML(imgUrl)}" data-name="${escapeHTML(img.name)}" data-size="${img.size || ''}">
                   <img src="${escapeHTML(imgUrl)}" alt="${escapeHTML(img.name)}" loading="lazy">
@@ -342,8 +361,7 @@
           <div class="note-card-docs">
             ${n.files.map(doc => {
               const icon = getFileIcon(doc.name);
-              const rawUrl = doc.url || `files/${doc.name}`;
-              const fileUrl = getAcceleratedUrl(rawUrl);
+              const fileUrl = resolveAssetUrl(doc);
               return `
                 <div class="bound-doc-item">
                   <div class="bound-doc-info">
@@ -459,7 +477,7 @@
     showToast(`开始下载本笔记的 ${all.length} 个文件...`, 'info');
     all.forEach((f, idx) => {
       setTimeout(() => {
-        const url = f.url || `files/${f.name}`;
+        const url = resolveAssetUrl(f);
         const a = document.createElement('a');
         a.href = url;
         a.download = f.name;
@@ -485,7 +503,7 @@
       el.readerImagesSection.style.display = 'block';
       el.readerImageCount.textContent = note.images.length;
       el.readerImagesGrid.innerHTML = note.images.map(img => {
-        const url = img.url || `files/${img.name}`;
+        const url = resolveAssetUrl(img);
         return `
           <div class="reader-img-card" data-url="${escapeHTML(url)}" data-name="${escapeHTML(img.name)}" data-size="${img.size || ''}" title="点击放大图片">
             <img src="${escapeHTML(url)}" alt="${escapeHTML(img.name)}" loading="lazy">
@@ -509,7 +527,7 @@
       el.readerDocCount.textContent = note.files.length;
       el.readerDocsList.innerHTML = note.files.map(doc => {
         const icon = getFileIcon(doc.name);
-        const url = doc.url || `files/${doc.name}`;
+        const url = resolveAssetUrl(doc);
         return `
           <div class="bound-doc-item">
             <div class="bound-doc-info">
@@ -549,19 +567,72 @@
   // ========================================================
   // IN-BROWSER HIGH FIDELITY PREVIEW ENGINE (PURE STATIC)
   // ========================================================
+  let isPreviewFullscreen = false;
+
+  function resetPreviewFullscreen() {
+    isPreviewFullscreen = false;
+    const modal = el.filePreviewModal?.querySelector('.modal-preview');
+    if (modal) modal.classList.remove('is-fullscreen');
+    if (el.previewFullscreenBtn) {
+      el.previewFullscreenBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <span>全屏</span>
+      `;
+      el.previewFullscreenBtn.title = '全屏沉浸阅读';
+    }
+  }
+
+  function togglePreviewFullscreen() {
+    isPreviewFullscreen = !isPreviewFullscreen;
+    const modal = el.filePreviewModal?.querySelector('.modal-preview');
+    if (modal) {
+      modal.classList.toggle('is-fullscreen', isPreviewFullscreen);
+    }
+    if (el.previewFullscreenBtn) {
+      el.previewFullscreenBtn.innerHTML = isPreviewFullscreen
+        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6v6m10-10h-6V4m0 6 7-7M4 20l7-7"/></svg><span>还原</span>`
+        : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg><span>全屏</span>`;
+      el.previewFullscreenBtn.title = isPreviewFullscreen ? '还原窗口大小' : '全屏沉浸阅读';
+    }
+  }
+
   async function openFilePreview(fileUrl, fileName, fileSize = '') {
+    resetPreviewFullscreen();
     el.previewFileIcon.textContent = getFileIcon(fileName);
     el.previewFileName.textContent = fileName;
     el.previewFileSize.textContent = fileSize ? formatBytes(fileSize) : '';
     el.previewDownloadBtn.href = fileUrl;
     el.previewDownloadBtn.setAttribute('download', fileName);
-    el.previewNewTabBtn.onclick = () => window.open(fileUrl, '_blank');
+
+    const ext = fileName.split('.').pop().toLowerCase();
+    const isOffice = ['docx', 'doc', 'xlsx', 'xls', 'csv'].includes(ext);
+
+    if (el.previewHeaderActionBtn) {
+      el.previewHeaderActionBtn.href = fileUrl;
+      if (isOffice) {
+        // Office documents cannot be rendered natively in a blank browser tab, so download directly
+        el.previewHeaderActionBtn.setAttribute('download', fileName);
+        el.previewHeaderActionBtn.removeAttribute('target');
+        el.previewHeaderActionBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>下载</span>
+        `;
+        el.previewHeaderActionBtn.title = '下载原文件';
+      } else {
+        // Images and PDFs can be viewed natively in new tab
+        el.previewHeaderActionBtn.removeAttribute('download');
+        el.previewHeaderActionBtn.setAttribute('target', '_blank');
+        el.previewHeaderActionBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>新窗口</span>
+        `;
+        el.previewHeaderActionBtn.title = '在新标签页中查看';
+      }
+    }
 
     el.previewContainer.innerHTML = '<div class="loading-placeholder" style="color:#fff;">正在解析并加载预览，请稍候...</div>';
     el.previewHintText.textContent = '';
     el.filePreviewModal.style.display = 'flex';
-
-    const ext = fileName.split('.').pop().toLowerCase();
 
     // 1. WORD DOCUMENTS (.docx / .doc)
     if (ext === 'docx' || ext === 'doc') {
@@ -769,7 +840,15 @@
     if (el.closeReaderFooterBtn) el.closeReaderFooterBtn.onclick = () => { if (el.noteReaderModal) el.noteReaderModal.style.display = 'none'; };
 
     // File Preview Modal actions
-    if (el.closePreviewBtn) el.closePreviewBtn.onclick = () => { if (el.filePreviewModal) el.filePreviewModal.style.display = 'none'; };
+    if (el.previewFullscreenBtn) {
+      el.previewFullscreenBtn.onclick = togglePreviewFullscreen;
+    }
+    if (el.closePreviewBtn) {
+      el.closePreviewBtn.onclick = () => {
+        resetPreviewFullscreen();
+        if (el.filePreviewModal) el.filePreviewModal.style.display = 'none';
+      };
+    }
 
     // CDN Toggle
     if (el.cdnTogglePill) {
@@ -785,7 +864,10 @@
     // Close modals on clicking overlay backdrop
     window.onclick = (e) => {
       if (el.noteReaderModal && e.target === el.noteReaderModal) el.noteReaderModal.style.display = 'none';
-      if (el.filePreviewModal && e.target === el.filePreviewModal) el.filePreviewModal.style.display = 'none';
+      if (el.filePreviewModal && e.target === el.filePreviewModal) {
+        resetPreviewFullscreen();
+        el.filePreviewModal.style.display = 'none';
+      }
     };
   }
 

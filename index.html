@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StarWhiteNote | 个人笔记与资料共享站</title>
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 </head>
 <body class="theme-light">
@@ -97,41 +97,48 @@
 
         <div class="guide-steps-grid">
           <div class="guide-card">
-            <div class="step-badge">步骤 1</div>
-            <h3>📂 在 GitHub 上传文件或图片</h3>
-            <p>登录 github.com，进入你的项目仓库，点击进入 <code>files/</code> 文件夹：</p>
+            <div class="step-badge">方式 1</div>
+            <h3>📂 在 files/ 目录上传（小文件推荐）</h3>
+            <p>进入项目仓库中的 <code>files/</code> 文件夹：</p>
             <ul>
-              <li>点击右上角的 <strong>【Add file】->【Upload files】</strong></li>
-              <li>把你的 Word 文档（<code>.docx</code>）、Excel 表格（<code>.xlsx</code>）、高清图片或 PDF 拖进网页</li>
-              <li>点击底部的绿色 <strong>【Commit changes】</strong> 提交保存</li>
+              <li>点击右上角 <strong>【Add file】->【Upload files】</strong></li>
+              <li>把 Word（<code>.docx</code>）、Excel（<code>.xlsx</code>）或小文件拖进去提交</li>
+              <li>在 <code>notes.json</code> 中填写 <code>"url": "files/文件名.docx"</code></li>
+            </ul>
+          </div>
+
+          <div class="guide-card" style="border-color:var(--accent-green);">
+            <div class="step-badge" style="background:var(--accent-green);">方式 2 (强烈推荐)</div>
+            <h3>🚀 在 GitHub Release 上传图片（不占代码体积）</h3>
+            <p>进入仓库右侧的 <strong>【Releases】</strong> 页面：</p>
+            <ul>
+              <li>点击 <strong>【Draft a new release】</strong>，标签填 <code>assets</code></li>
+              <li>把高清图片、思维导图或大文件直接拖进附件框，点击发布</li>
+              <li>在 <code>notes.json</code> 中只需填：<br>
+                <code>{"name": "架构图.png", "release": "assets"}</code><br>
+                系统会自动解析为 Release 极速直链！单个文件支持高达 2GB！
+              </li>
             </ul>
           </div>
 
           <div class="guide-card">
-            <div class="step-badge">步骤 2</div>
-            <h3>✍️ 在 notes.json 中登记笔记</h3>
-            <p>在仓库根目录下点击打开 <strong><code>notes.json</code></strong> 文件，点击右上角的 ✏️ 铅笔图标进行在线编辑：</p>
+            <div class="step-badge">登记笔记</div>
+            <h3>✍️ 在 notes.json 中登记</h3>
+            <p>在仓库根目录下打开 <strong><code>notes.json</code></strong> 点击 ✏️ 铅笔在线编辑：</p>
             <pre style="background:var(--bg-main); padding:0.8rem; border-radius:6px; font-size:0.82rem; overflow:auto;"><code>{
   "id": "my-new-note",
   "title": "我的新笔记标题",
-  "tags": ["工作方案", "Word文档"],
+  "tags": ["学习笔记", "思维导图"],
   "date": "2026-11-12",
-  "content": "这里是笔记的内容与详细说明文字...",
+  "content": "这里是正文详细说明...",
   "images": [
-    { "name": "架构图.png", "url": "files/架构图.png", "size": 25000 }
+    { "name": "思维导图.png", "release": "assets" }
   ],
   "files": [
-    { "name": "设计手册.docx", "url": "files/设计手册.docx", "size": 32000 }
+    { "name": "复习手册.docx", "url": "files/复习手册.docx", "size": 32000 }
   ]
 }</code></pre>
-            <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">仿照上面的格式追加一条笔记即可。你填写的 <code>tags</code> 标签会自动出现在网站顶部的筛选栏中！</p>
-          </div>
-
-          <div class="guide-card">
-            <div class="step-badge">步骤 3</div>
-            <h3>🚀 自动生效并全球秒开</h3>
-            <p>提交保存后，GitHub Pages 会自动同步更新（通常 30 秒至 1 分钟）。</p>
-            <p>刷新你的网站，所有人就能立刻看到最新笔记，并享受在线 Word 完整排版预览与下载！</p>
+            <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">提交保存后，GitHub Pages 会在 30 秒内全网同步自动生效！</p>
           </div>
         </div>
       </div>
@@ -200,8 +207,15 @@
           </div>
         </div>
         <div class="preview-header-actions">
-          <button class="btn btn-sm btn-outline" id="previewNewTabBtn" title="在新标签页中打开">↗️ 新窗口</button>
-          <button class="close-btn" id="closePreviewBtn">&times;</button>
+          <button class="btn btn-sm btn-outline" id="previewFullscreenBtn" title="全屏查看文档">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <span>全屏</span>
+          </button>
+          <a class="btn btn-sm btn-outline" id="previewHeaderActionBtn" href="#" target="_blank" title="下载或新窗口打开">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="previewHeaderActionText">下载</span>
+          </a>
+          <button class="close-btn" id="closePreviewBtn" title="关闭预览">&times;</button>
         </div>
       </div>
       <div class="preview-body" id="previewContainer">
@@ -218,7 +232,7 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <!-- Core App Logic (Pure Static, loads immediately) -->
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
   <!-- Heavy Preview Engines (Deferred background loading for instant initial render) -->
   <script src="jszip.min.js" defer></script>
   <script src="docx-preview.min.js" defer></script>

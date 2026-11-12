@@ -102,40 +102,52 @@ StarWhiteNote/
 
 平时更新笔记或添加新文件时，您可以根据使用场景自由选择以下两种方式之一：
 
-### 方式 A：在 GitHub 网页端随手更新（推荐，手机/电脑皆可）
+### 方式 A：在 GitHub 网页端随手更新（适合日常笔记与普通文档）
 
-#### 1. 上传新文件或图片
-1. 进入 GitHub 仓库中的 **`files/`** 目录；
-2. 点击右上角 **【Add file】->【Upload files】**；
-3. 把您的 Word（`.docx`）、Excel（`.xlsx`）、图片或 PDF 拖拽进网页；
-4. 点击底部绿色的 **【Commit changes】** 提交保存。
+#### 1. 上传新文件
+进入仓库的 **`files/`** 目录，点击 **【Add file】->【Upload files】** 上传您的 Word、Excel 或 PDF 文件并提交。
 
 #### 2. 登记新笔记
-1. 点击项目根目录下的 **`notes.json`** 文件；
-2. 点击右上角铅笔图标 ✏️（Edit this file）在线编辑；
-3. 仿照现有格式复制追加一条笔记：
-
-```json
-{
-  "id": "my-new-note",
-  "title": "我的新笔记标题",
-  "tags": ["学习笔记", "思维导图", "Word文档"],
-  "date": "2026-11-12",
-  "content": "这里是笔记的正文说明，支持使用 Markdown 语法进行段落排版...",
-  "images": [
-    { "name": "思维导图截图.png", "url": "files/思维导图截图.png", "size": 25600 }
-  ],
-  "files": [
-    { "name": "知识点总结手册.docx", "url": "files/知识点总结手册.docx", "size": 32000 }
-  ]
-}
-```
-4. 点击底部绿色的 **【Commit changes】** 提交保存。  
-等待约 30 秒后刷新网页，最新笔记与文件即可全网自动呈现！
+在根目录下编辑 **`notes.json`**，仿照格式复制追加一条笔记并保存提交。
 
 ---
 
-### 方式 B：在本地电脑编辑后一键发布
+### 方式 B (强烈推荐)：通过 GitHub Releases 上传图片与大文件（不占用仓库体积）
+
+如果您有很多**高清图片、思维导图、工程安装包或超大 PDF**，强烈建议将它们上传到 GitHub Releases 中：
+- **零代码膨胀**：代码仓库永远保持只有几 MB，无论传多少 GB 图片都不会让 git clone / git push 变卡；
+- **单文件最高支持 2GB**，永久免维护全球加速分发！
+
+#### 操作步骤：
+1. 打开您的 GitHub 仓库页面，点击右侧的 **【Releases】**（或者直接访问 `https://github.com/StarWhiteIsBusy/StarWhiteNote/releases`）；
+2. 点击 **【Draft a new release】**：
+   - **Tag version**（标签名）：填写 `assets`（或者版本号如 `v1.0`）；
+   - **Release title**（标题）：填写 `资源附件库`；
+   - 在底部的 **Attach binaries by dropping them here or selecting them** 框中，把你的高清图片（`.png`, `.jpg`, `.webp`）或大文件直接拖拽进去；
+3. 点击最下方绿色的 **【Publish release】** 发布保存；
+4. 回到根目录的 **`notes.json`** 中，在图片登记项中只需填写：
+```json
+"images": [
+  {
+    "name": "思维导图大图.png",
+    "release": "assets"
+  }
+]
+```
+或者直接填写上传后的完整下载链接：
+```json
+"images": [
+  {
+    "name": "思维导图大图.png",
+    "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/assets/思维导图大图.png"
+  }
+]
+```
+StarWhiteNote 引擎会自动识别并进行极速加载与全屏放大！
+
+---
+
+### 方式 C：在本地电脑编辑后一键发布（双击批处理）
 
 1. 把新文件直接放到本地的 `files/` 文件夹下；
 2. 用记事本或编辑器打开 `notes.json` 登记笔记；
