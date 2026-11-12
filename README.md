@@ -1,150 +1,169 @@
-# ⭐ StarWhiteNote | GitHub Pages 纯静态个人笔记与资料分享站
+# ⭐ StarWhiteNote | 个人笔记与资料云端共享站
 
-> **永久 0 元运维 · 零后端依赖 · 在线 Word/Excel 排版级预览 · 免费绑定自定义域名**
+> **永久 0 元成本 · 100% 纯静态架构 · 免登录直接畅读 · 浏览器级 Word/Excel 排版预览 · 全球 CDN 极速加速**
 
-这是一个专为 **GitHub Pages** 打造的现代化、高颜值纯静态个人笔记与文件共享站。
-
-你不需要购买任何云服务器，也不需要懂复杂的 Linux 运维命令。你的所有笔记与文件都存放在 GitHub 仓库中；访客打开你的专属网址或绑定域名，即可享受极致流畅的**标签筛选、全文搜索、Word 文档在线排版级预览、Excel 表格切换、图片画廊大图浏览与原文件高速下载**！
-
----
-
-## 🌟 核心特性
-
-- ⚡ **纯静态架构（Jamstack / Git-based CMS）**：
-  - 零后端服务器，不消耗一分钱服务器费用，全球 CDN 极速分发，永远不宕机、不休眠。
-- 📘 **排版级在线预览引擎（纯浏览器本地运行）**：
-  - **Word 文档 (`.docx` / `.doc`)**：原汁原味还原微软 Office 的段落、表格、字体与排版样式，手机和电脑无需安装 Office 即可直接阅读！
-  - **Excel 表格 (`.xlsx` / `.csv`)**：支持多工作表（Sheet）在线点击切换，高保真表格渲染。
-  - **高清大图画廊**：多图网格自适应展示，点击弹出全屏高清缩放画廊。
-  - **PDF 文档**：内置滚动翻页、缩放与阅读器。
-- 🏷️ **智能动态标签系统**：
-  - 无需硬编码分类，网页会自动扫描 `notes.json` 中的所有标签，动态生成顶部的标签胶囊筛选栏（如 `#工作方案`、`#项目手册`、`#Word文档`）。
-- 🔍 **毫秒级全局即时搜索**：
-  - 输入关键词，即时在笔记标题、内容正文、标签及关联的所有文件名中进行模糊匹配。
-- 🌐 **免费绑定自定义域名**：
-  - 支持将你购买的域名（例如 `note.yourdomain.com`）解析至 GitHub Pages，GitHub 全自动免费签发 SSL 证书（永久自动续期 `https://` 绿标）。
+![GitHub Pages](https://img.shields.io/badge/Hosting-GitHub%20Pages-blue?logo=github)
+![Zero Backend](https://img.shields.io/badge/Backend-100%25%20Static-green)
+![CDN Acceleration](https://img.shields.io/badge/CDN-jsDelivr%20Anycast-orange)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 ---
 
-## 📁 仓库目录结构
+## 📖 项目简介
 
-将本文件夹内的所有文件上传到你的 GitHub 仓库根目录即可直接工作：
+**StarWhiteNote** 是一个专为个人笔记记录、电子资料整理与公开分享打造的高颜值、现代化的纯静态云端笔记共享站。
 
-```
+- **无需租用服务器**：完全托管在 GitHub Pages 上，零服务器月租，不休眠、不宕机；
+- **访客免登录**：任何人打开网址即可直接阅读全部笔记，无需注册或输入任何访问密码；
+- **排版级在线预览**：浏览器内置轻量化解析引擎，不需要安装 Office 或 WPS 软件，点击直接在线完整还原 Word 排版、Excel 多工作表与高清图片；
+- **极速更新体验**：支持在 GitHub 网页端随手上传，也支持在 Windows 本地双击脚本一键发布与同步。
+
+---
+
+## ✨ 核心特性
+
+- ⚡ **纯静态免登录架构（Git-based CMS）**
+  所有笔记和文件全部存储在 GitHub 仓库中。访客打开即读，站长通过 GitHub 权限管理内容，兼顾开放共享与数据安全。
+- 📘 **排版级 Office 预览引擎（纯浏览器前端渲染）**
+  - **Word 文档 (`.docx`)**：高保真还原微软 Word 排版、段落缩进、加粗标题、表格及样式，居中单页纸张级阅读体验；
+  - **Excel 表格 (`.xlsx` / `.csv`)**：支持多工作表（Sheet Tabs）在线点击切换，快速查阅表格数据；
+  - **高清大图画廊**：多图网格自适应展示，点击支持全屏放大查看与另存原图；
+  - **文件即时下载**：所有关联文档与附件均支持一键高速下载。
+- 🚀 **GitHub Pages 全球加速（默认开启）**
+  - 顶部状态栏默认启用 `⚡ GitHub Pages 全球加速`，配备呼吸状态绿灯指示；
+  - 底层自动路由至全球 Anycast 边缘 CDN（jsDelivr CDN），彻底解决国内直连 GitHub Pages 延迟卡顿的问题，实现秒级加载；
+  - 点击加速胶囊可随时在「全球 CDN 极速加速」与「GitHub 官方源直连」之间自由切换。
+- 🏷️ **智能标签动态聚合**
+  网页自动扫描笔记数据中的所有标签，动态聚合生成顶部胶囊筛选栏（如 `#使用指南`、`#Word文档`、`#项目资料`），点击标签即时筛选。
+- 🔍 **毫秒级全局模糊搜索**
+  输入关键词，实时在笔记标题、内容正文、分类标签以及关联的文件名中进行即时匹配。
+- 🌙 **Apple / Notion 极简设计美学**
+  - 清晰排版、舒适对比度、平滑圆角与细致微动效；
+  - 右上角支持一键切换明亮模式（Light）与暗黑模式（Dark）。
+
+---
+
+## 📁 项目目录结构
+
+```text
 StarWhiteNote/
-├── index.html               # 网站主界面（纯静态 SPA）
-├── style.css                # 现代化样式系统（支持明暗双主题、响应式适配）
-├── app.js                   # 纯静态核心逻辑（自动加载 notes.json、动态提取标签、交互与预览）
-├── notes.json               # 核心笔记数据清单（直接在 GitHub 网页端编辑登记笔记）
-├── files/                   # 资料与附件存储目录（在此上传你的 Word、Excel、图片、PDF 等）
+├── index.html               # 网站主界面（纯静态 SPA 单页应用）
+├── style.css                # 现代极简设计系统（支持明暗双主题、响应式自适应）
+├── app.js                   # 前端核心业务逻辑（数据加载、标签提取、搜索过滤、预览驱动）
+├── notes.json               # 笔记数据库清单（直接在 GitHub 网页端或本地编辑登记）
+├── files/                   # 电子资料与附件存储目录
 │   ├── StarWhiteNote使用指南与功能手册.docx
 │   ├── 共享平台架构与操作界面截图.png
 │   └── 项目进度与任务清单示例.xlsx
-├── docx-preview.min.js      # 本地离线 Word 排版渲染引擎
-├── mammoth.browser.min.js   # Word 备用解析器
-├── jszip.min.js             # 解压渲染支持库
-├── xlsx.full.min.js         # 本地离线 Excel 渲染引擎
-├── start.bat                # 本地电脑一键双击离线预览脚本
-└── README.md                # 详细部署与使用指南
+├── docx-preview.min.js      # 浏览器端 Word 排版级预览引擎
+├── mammoth.browser.min.js   # Word 文档备用轻量解析库
+├── xlsx.full.min.js         # 浏览器端 Excel 高保真表格解析引擎
+├── jszip.min.js             # 客户端解压与流式文件读取库
+├── 一键发布到GitHub.bat     # Windows 极简一键推送发布脚本
+├── 一键同步云端最新.bat     # Windows 一键拉取同步最新修改脚本
+├── start.bat                # 本地电脑离线预览调试服务启动脚本
+├── server.js                # 本地简易零依赖预览服务（Node.js 原生驱动）
+└── README.md                # 本说明文档
 ```
 
 ---
 
-## 🚀 第一部分：如何上线部署到 GitHub Pages（只需 3 分钟）
+## 🚀 首次部署上线指南（只需 2 步）
 
-### 第一步：在 GitHub 创建新仓库
-1. 登录你的 [GitHub 账号](https://github.com/)。
-2. 点击右上角绿色的 **【New repository】**（新建仓库）。
-3. 填写仓库名称（例如：`StarWhiteNote` 或 `my-notes`）。
-4. 仓库权限选择 **【Public】**（公开，GitHub Pages 免费版需要 Public 仓库）。
-5. 点击最下方的 **【Create repository】**。
+仓库地址：[https://github.com/StarWhiteIsBusy/StarWhiteNote](https://github.com/StarWhiteIsBusy/StarWhiteNote)
 
-### 第二步：上传本项目的所有文件
-1. 在刚刚创建好的 GitHub 仓库页面中，点击 **【uploading an existing file】**（上传已有文件）。
-2. 将本地项目文件夹（`StarWhiteNote`）中的所有文件和文件夹（`index.html`, `style.css`, `app.js`, `notes.json`, `files/`, `*.min.js` 等）全选并直接拖拽到 GitHub 网页的上传区域。
-3. 页面底部的提交框中直接点击绿色的 **【Commit changes】**（保存提交）。
+### 第 1 步：一键推送本地文件到 GitHub
+1. 打开项目所在的本地文件夹；
+2. 双击运行 **`一键发布到GitHub.bat`**：
+   - 提示输入更新说明时，直接按 **Enter 回车**；
+   - Git 会自动弹出浏览器窗口，点击 **【Authorize git-ecosystem】** 授权登录即可；
+   - 脚本会自动将所有静态页面、引擎库及附件推送到您的 GitHub 仓库。
 
-### 第三步：开启 GitHub Pages 网站服务
-1. 在你的 GitHub 仓库页面，点击上方的 **【Settings】**（设置）选项卡。
-2. 在左侧菜单栏中点击 **【Pages】**。
-3. 在 **Build and deployment** 下方的 **Branch**（分支）下拉菜单中：
-   - 将 `None` 改为选择 **`main`**（或 `master`）。
-   - 目录选择默认的 **`/ (root)`**。
-   - 点击右侧的 **【Save】**（保存）。
-4. 耐心等待 1~2 分钟，页面上方会出现一行绿色的提示：
-   > **"Your site is live at https://你的用户名.github.io/StarWhiteNote/"**
-   点击该链接，你的个人笔记与资料分享站就正式全网公开发布上线了！
+### 第 2 步：在 GitHub 仓库开启免费 Pages 托管
+1. 打开您的 GitHub 仓库设置页面：  
+   👉 [https://github.com/StarWhiteIsBusy/StarWhiteNote/settings/pages](https://github.com/StarWhiteIsBusy/StarWhiteNote/settings/pages)
+2. 在 **Build and deployment** 下方的 **Source** 选择 **Deploy from a branch**；
+3. 在 **Branch** 下拉框中选择 **`main`** 分支，目录保持默认的 **`/(root)`**；
+4. 点击右侧绿色的 **Save** 保存！
 
 ---
 
-## ✍️ 第二部分：平时如何更新笔记与上传新文件？
+### 🎉 全网访问网址
 
-完全不需要敲任何 Git 命令行，平时在手机或任意电脑的浏览器里就能轻松维护：
+保存后等待约 30 秒至 1 分钟，您的专属网站便会自动部署生效：
 
-### 1. 上传新文档或图片（Word、Excel、图片、PDF）
-1. 在 GitHub 你的仓库页面中，点击进入 **`files/`** 文件夹。
-2. 点击右上角 **【Add file】->【Upload files】**。
-3. 把你要分享的新文件（例如 `2026年度总结.docx` 或 `架构图.png`）拖拽进网页。
-4. 点击底部的 **【Commit changes】** 提交保存。
+👉 **`https://starwhiteisbusy.github.io/StarWhiteNote/`**
 
-### 2. 登记笔记（编辑 `notes.json`）
-1. 回到仓库根目录，点击打开 **`notes.json`** 文件。
-2. 点击右上角的小铅笔图标 **✏️（Edit this file）** 进行在线编辑。
-3. 仿照格式在数组中复制追加一条笔记：
+任何人通过手机或电脑浏览器打开该链接，即可畅读您的全部笔记并在线预览或下载附件！
+
+---
+
+## ✍️ 日常更新与维护说明
+
+平时更新笔记或添加新文件时，您可以根据使用场景自由选择以下两种方式之一：
+
+### 方式 A：在 GitHub 网页端随手更新（推荐，手机/电脑皆可）
+
+#### 1. 上传新文件或图片
+1. 进入 GitHub 仓库中的 **`files/`** 目录；
+2. 点击右上角 **【Add file】->【Upload files】**；
+3. 把您的 Word（`.docx`）、Excel（`.xlsx`）、图片或 PDF 拖拽进网页；
+4. 点击底部绿色的 **【Commit changes】** 提交保存。
+
+#### 2. 登记新笔记
+1. 点击项目根目录下的 **`notes.json`** 文件；
+2. 点击右上角铅笔图标 ✏️（Edit this file）在线编辑；
+3. 仿照现有格式复制追加一条笔记：
 
 ```json
-[
-  {
-    "id": "my-new-note-2026",
-    "title": "2026 年度工作总结与规划方案（含完整排版）",
-    "tags": ["年度汇报", "工作总结", "Word文档"],
-    "date": "2026-11-12",
-    "content": "这里是站长整理的年度工作总结，包含了核心数据指标与详细图文排版。点击下方按钮即可在线阅读完整 Word 排版，也可以一键下载原文件。",
-    "images": [
-      {
-        "name": "架构图.png",
-        "url": "files/架构图.png",
-        "size": 25600
-      }
-    ],
-    "files": [
-      {
-        "name": "2026年度总结.docx",
-        "url": "files/2026年度总结.docx",
-        "size": 38400
-      }
-    ]
-  }
-]
+{
+  "id": "my-new-note",
+  "title": "我的新笔记标题",
+  "tags": ["学习笔记", "思维导图", "Word文档"],
+  "date": "2026-11-12",
+  "content": "这里是笔记的正文说明，支持使用 Markdown 语法进行段落排版...",
+  "images": [
+    { "name": "思维导图截图.png", "url": "files/思维导图截图.png", "size": 25600 }
+  ],
+  "files": [
+    { "name": "知识点总结手册.docx", "url": "files/知识点总结手册.docx", "size": 32000 }
+  ]
+}
 ```
-4. 点击页面右上角的绿色 **【Commit changes】** 提交保存。
-5. 等待 30 秒左右，GitHub Pages 就会自动更新，刷新网页即可看到最新内容！
+4. 点击底部绿色的 **【Commit changes】** 提交保存。  
+等待约 30 秒后刷新网页，最新笔记与文件即可全网自动呈现！
 
 ---
 
-## 🌐 第三部分：如何绑定你的自定义域名？
+### 方式 B：在本地电脑编辑后一键发布
 
-如果你有自己的独立域名（例如你在阿里云、腾讯云或万网购买了 `yourdomain.com`，想用 `note.yourdomain.com` 访问）：
-
-### 第一步：在域名解析商处添加 CNAME 记录
-登录你的阿里云/腾讯云域名解析控制台，添加一条 DNS 记录：
-* **记录类型**：`CNAME`
-* **主机记录**：`note`（代表二级域名 `note.yourdomain.com`；若要用主域名请填 `@`）
-* **记录值**：`你的GitHub用户名.github.io`（例如 `zhangsan.github.io`）
-* **TTL**：默认 600 秒
-
-### 第二步：在 GitHub 仓库设置中填入域名
-1. 打开 GitHub 仓库的 **【Settings】->【Pages】**。
-2. 找到 **Custom domain**（自定义域名）输入框。
-3. 填入你的完整域名（如 `note.yourdomain.com`），点击 **Save**。
-4. GitHub 会自动在仓库根目录下生成一个 `CNAME` 文件，并自动向国际证书颁发机构申请免费的 SSL 证书。
-5. 勾选下方的 **【Enforce HTTPS】**（强制开启 HTTPS 安全访问）。
-6. 解析生效后（通常 5~15 分钟），任何人访问 `https://note.yourdomain.com` 就可以直接秒开你的网站了！
+1. 把新文件直接放到本地的 `files/` 文件夹下；
+2. 用记事本或编辑器打开 `notes.json` 登记笔记；
+3. 双击运行 **`一键发布到GitHub.bat`**，按一下回车，自动同步推送上云！
+4. 如果您在网页端做过修改，只需在本地双击 **`一键同步云端最新.bat`** 即可拉取最新变动。
 
 ---
 
-## 💻 本地离线预览
+## 💻 本地离线开发与预览
 
-如果你在自己电脑上修改了 `notes.json` 或添加了新文档，想要在上传到 GitHub 之前先在电脑上看看效果：
-* 直接双击运行项目根目录下的 **`start.bat`**。
-* 浏览器会自动打开 `http://localhost:3000`，呈现与 GitHub Pages 上完全一致的效果。
+若需要在离线或无网环境下预览网站：
+
+1. 双击运行 **`start.bat`**；
+2. 浏览器将自动打开 `http://localhost:3000`；
+3. 可在本地完整体验标签分类、全文搜索、Office 文档在线预览与下载。
+
+---
+
+## 🌐 绑定独立域名（进阶可选）
+
+如果您拥有自己的个性化域名（例如 `notes.yourdomain.com`）：
+
+1. **添加 CNAME 解析**：登录您的域名服务商后台（阿里云 / 腾讯云 / Cloudflare），添加一条 CNAME 解析记录，主机记录填写 `notes`，记录值填写 `starwhiteisbusy.github.io`；
+2. **在 GitHub 绑定**：打开仓库 **Settings -> Pages**，在 **Custom domain** 框中填入您的域名并点击 Save；
+3. **启用 HTTPS**：勾选 **Enforce HTTPS**，GitHub 会全自动签发全球信任的 SSL 安全证书并保持永久自动续期。
+
+---
+
+## 📄 开源许可证
+
+本项目基于 [MIT License](LICENSE) 协议开源，供个人学习、知识沉淀与资料分享免费使用。

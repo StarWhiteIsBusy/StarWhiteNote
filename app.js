@@ -108,12 +108,14 @@
   }
 
   function formatBytes(bytes) {
-    if (!bytes || bytes === 0) return '0 B';
-    if (typeof bytes === 'string') return bytes;
+    if (bytes === undefined || bytes === null || bytes === '') return '';
+    const num = typeof bytes === 'number' ? bytes : Number(bytes);
+    if (isNaN(num)) return String(bytes);
+    if (num === 0) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    const i = Math.floor(Math.log(num) / Math.log(k));
+    return parseFloat((num / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   function escapeHTML(str) {
@@ -564,7 +566,8 @@
     // 1. WORD DOCUMENTS (.docx / .doc)
     if (ext === 'docx' || ext === 'doc') {
       try {
-        const res = await fetch(fileUrl);
+        const fetchUrl = fileUrl.includes('?') ? `${fileUrl}&_t=${Date.now()}` : `${fileUrl}?_t=${Date.now()}`;
+        const res = await fetch(fetchUrl);
         if (!res.ok) throw new Error(`文件获取失败 (HTTP ${res.status})`);
         const arrayBuffer = await res.arrayBuffer();
 
@@ -574,7 +577,7 @@
         if (window.docx && window.docx.renderAsync) {
           await window.docx.renderAsync(arrayBuffer, docxTarget, null, {
             className: 'docx',
-            inWrapper: true,
+            inWrapper: false,
             ignoreWidth: false,
             breakPages: true
           });
@@ -596,7 +599,8 @@
     // 2. EXCEL SPREADSHEETS (.xlsx / .xls / .csv)
     if (['xlsx', 'xls', 'csv'].includes(ext)) {
       try {
-        const res = await fetch(fileUrl);
+        const fetchUrl = fileUrl.includes('?') ? `${fileUrl}&_t=${Date.now()}` : `${fileUrl}?_t=${Date.now()}`;
+        const res = await fetch(fetchUrl);
         if (!res.ok) throw new Error(`文件获取失败 (HTTP ${res.status})`);
         const arrayBuffer = await res.arrayBuffer();
 
