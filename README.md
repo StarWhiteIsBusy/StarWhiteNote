@@ -41,18 +41,18 @@
 
 ---
 
-## 📝 怎样发布新笔记与思维导图？
+## 📝 怎样管理与发布新笔记？
 
-每次写新笔记或上传资料，只需在 GitHub 网页上点几下即可：
+现在全面升级为**项目内分科目文件夹管理**，告别繁琐的 Releases Tag 配置：
 
-1. 进入你的 GitHub 仓库 [Releases 页面](https://github.com/StarWhiteIsBusy/StarWhiteNote/releases)；
-2. 点击 **【Draft a new release】**：
-   - **Tag version**：填分类标签（如 `物理`、`数学`、`英语`）；
-   - **Release title**：填笔记主标题（如 `相遇追及问题技巧总结`）；
-   - **Description**：填写 Markdown 笔记正文；
-   - **Attach binaries**：把你的思维导图 (`.xmind`)、课件 (`.pptx`) 或图片直接拖进去；
-3. 点击 **【Publish release】** 发布；
-4. 任何人访问你的 GitHub Pages 网站，点击右上角 **`🔄 同步云端`** 即可立即查看到最新发布的笔记！
+1. **按学科归类存放**：
+   - 打开本地项目中的 `notes/` 文件夹；
+   - 放入对应的科目目录（如 `notes/数学/`、`notes/英语/`、`notes/物理/`）；
+   - 支持将导出的思维导图 (`.xmind`)、笔记正文 (`.md`)、板书截图 (`.png`) 直接放入对应文件夹中。
+2. **一键自动发布**：
+   - 双击运行 **`一键发布到GitHub.bat`**；
+   - 脚本会自动扫描更新全站的知识库索引，并自动同步推送到 GitHub 云端；
+   - GitHub Pages 全球 CDN 将在 30 秒内完成部署上线！无需去网页手动创建 Release。
 
 ---
 

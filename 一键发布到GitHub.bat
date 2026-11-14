@@ -26,6 +26,13 @@ set /p commit_msg="请输入本次更新说明（直接按回车默认使用当�
 if not defined commit_msg set commit_msg=Update notes %date% %time:~0,5%
 
 echo.
+echo [准备] 正在自动扫描 notes 目录并更新知识库索引...
+where python >nul 2>nul
+if %errorlevel% equ 0 (
+    python build_notes.py
+)
+
+echo.
 echo [1/3] 正在添加文件到暂存区 (git add) ...
 "%GIT_EXE%" add .
 

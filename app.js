@@ -176,8 +176,8 @@
       rawUrl = `files/${item.name}`;
     }
 
-    // Relative local path in repository (e.g. files/...)
-    if (rawUrl.startsWith('files/')) {
+    // Relative local path in repository (e.g. notes/..., files/...)
+    if (rawUrl.startsWith('notes/') || rawUrl.startsWith('files/') || (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://'))) {
       return rawUrl;
     }
 
@@ -351,98 +351,69 @@
     };
   }
 
+  function applyNotes(combinedList, isFromSync = false) {
+    if (!Array.isArray(combinedList) || combinedList.length === 0) return;
+    notes = combinedList;
+    const tagSet = new Set();
+    let totalFiles = 0;
+    for (const n of notes) {
+      (n.tags || []).forEach(t => {
+        if (t && t.trim()) tagSet.add(t.trim());
+      });
+      totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
+    }
+    allTags = Array.from(tagSet);
+
+    el.statNotesCount.textContent = notes.length;
+    el.statFilesCount.textContent = totalFiles;
+    el.statTagsCount.textContent = allTags.length;
+
+    renderTagsBar();
+    renderNotes();
+
+    if (isFromSync) {
+      showToast(`✅ 已刷新！当前共收录 ${notes.length} 篇学科笔记与资料`, 'success');
+    }
+  }
+
   async function loadNotesData(isManualSync = false) {
     if (el.notesList && !isManualSync && notes.length === 0) {
       el.notesList.innerHTML = '<div class="loading-placeholder">正在加载笔记与思维导图...</div>';
     }
 
-    let localNotes = [];
-    let cloudNotes = [];
-
-    // Helper: Refresh UI with given notes
-    function applyNotes(combinedList, isFromSync = false) {
-      if (!Array.isArray(combinedList) || combinedList.length === 0) return;
-      notes = combinedList;
-      const tagSet = new Set();
-      let totalFiles = 0;
-      for (const n of notes) {
-        (n.tags || []).forEach(t => {
-          if (t && t.trim()) tagSet.add(t.trim());
-        });
-        totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
-      }
-      allTags = Array.from(tagSet);
-
-      el.statNotesCount.textContent = notes.length;
-      el.statFilesCount.textContent = totalFiles;
-      el.statTagsCount.textContent = allTags.length;
-
-      renderTagsBar();
-      renderNotes();
-
-      if (isFromSync) {
-        showToast(`✅ 云端同步完成！当前共 ${notes.length} 篇笔记`, 'success');
-      }
-    }
-
-    // 1. Read notes.json from GitHub Pages CDN (loads in ~50ms, zero lag!)
+    // Read notes.json directly from repository root
     try {
       const res = await fetch(`notes.json?_t=${Date.now()}`);
       if (res.ok) {
-        localNotes = await res.json();
+        const localNotes = await res.json();
         if (Array.isArray(localNotes) && localNotes.length > 0) {
           localNotes.forEach((n, idx) => {
-            n.id = n.id || `local-${idx + 1}`;
+            n.id = n.id || `note-${idx + 1}`;
             n.tags = Array.isArray(n.tags) ? n.tags : [];
             n.images = Array.isArray(n.images) ? n.images : [];
             n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
           });
-          applyNotes(localNotes, false);
-        }
-      }
-    } catch (_) {}
-
-    // 2. Fetch live GitHub Releases in background or on manual sync
-    try {
-      const res = await fetch(GITHUB_RELEASES_API);
-      if (res.ok) {
-        const releases = await res.json();
-        if (Array.isArray(releases) && releases.length > 0) {
-          cloudNotes = releases.map(transformReleaseToNote);
-          localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
-
-          // Merge: Cloud releases take priority, local notes fill missing
-          const noteMap = new Map();
-          cloudNotes.forEach(n => noteMap.set(n.title, n));
-          localNotes.forEach(n => {
-            if (!noteMap.has(n.title)) noteMap.set(n.title, n);
-          });
-          applyNotes(Array.from(noteMap.values()), isManualSync);
+          applyNotes(localNotes, isManualSync);
           return;
         }
       }
     } catch (e) {
-      console.warn('GitHub API live fetch skipped (using cached/notes.json):', e);
+      console.warn('Failed to load notes.json:', e);
       if (isManualSync) {
-        showToast('ℹ️ 已使用本地最新缓存笔记展示', 'info');
+        showToast('❌ 刷新失败，请检查网络或本地文件', 'error');
       }
     }
 
-    // 3. Fallback to localStorage cache if localNotes was empty
     if (notes.length === 0) {
-      const cached = localStorage.getItem('starwhite_releases_cache');
-      if (cached) {
-        try {
-          const cachedNotes = JSON.parse(cached);
-          if (Array.isArray(cachedNotes) && cachedNotes.length > 0) {
-            applyNotes(cachedNotes, false);
-            return;
-          }
-        } catch (_) {}
-      }
-
       el.notesList.innerHTML = `
         <div class="empty-state">
+          <div class="empty-icon">📂</div>
+          <h3>知识库中暂未发现笔记</h3>
+          <p>请在 notes/ 对应学科文件夹中放入笔记或导图文件。</p>
+        </div>
+      `;
+    }
+  }
           <div class="empty-icon">📝</div>
           <h3>尚未发布任何笔记或思维导图</h3>
           <p>可以在 GitHub 仓库右侧点击【Releases】->【Draft a new release】快速发布第一篇笔记！</p>
