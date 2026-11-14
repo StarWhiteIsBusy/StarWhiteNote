@@ -791,6 +791,169 @@
     }
   }
 
+  // ========================================================
+  // IMAGE VIEWER WITH SMOOTH WHEEL ZOOM & TOUCH PAN
+  // ========================================================
+  function renderImagePreviewWithZoom(fileUrl, fileName) {
+    el.previewContainer.innerHTML = `
+      <div class="image-zoom-container" id="imageZoomContainer">
+        <div class="image-zoom-viewport" id="imageZoomViewport" title="支持鼠标滚轮缩放、按住鼠标拖拽、双击重置">
+          <img class="zoomable-image" id="zoomableImage" src="${fileUrl}" alt="${escapeHTML(fileName)}" draggable="false">
+        </div>
+        <div class="image-zoom-toolbar">
+          <button class="zoom-btn" id="zoomOutBtn" title="缩小 (快捷键: -)">➖</button>
+          <span class="zoom-level-badge" id="zoomLevelBadge">100%</span>
+          <button class="zoom-btn" id="zoomInBtn" title="放大 (快捷键: +)">➕</button>
+          <button class="zoom-btn zoom-btn-text" id="zoomResetBtn" title="重置到 100% (双击图片也可重置)">↺ 100%</button>
+        </div>
+      </div>
+    `;
+
+    el.previewHintText.textContent = '提示：支持鼠标滚轮缩放、鼠标拖拽平移、双击重置（手机触屏支持双指捏合缩放）';
+
+    const viewport = document.getElementById('imageZoomViewport');
+    const img = document.getElementById('zoomableImage');
+    const levelBadge = document.getElementById('zoomLevelBadge');
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+
+    if (!viewport || !img) return;
+
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let isDragging = false;
+    let startPanX = 0;
+    let startPanY = 0;
+    const activePointers = new Map();
+    let initialPinchDist = 0;
+    let initialScale = 1;
+
+    function applyTransform(smooth = false) {
+      if (smooth) {
+        img.classList.add('smooth-transition');
+        setTimeout(() => img.classList.remove('smooth-transition'), 250);
+      } else {
+        img.classList.remove('smooth-transition');
+      }
+      img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      if (levelBadge) {
+        levelBadge.textContent = `${Math.round(scale * 100)}%`;
+      }
+      viewport.style.cursor = isDragging ? 'grabbing' : (scale > 1.05 ? 'grab' : 'default');
+    }
+
+    // 1. Mouse Wheel Zoom (centered at mouse cursor)
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.87;
+      const newScale = Math.min(Math.max(scale * zoomFactor, 0.2), 10);
+
+      const rect = viewport.getBoundingClientRect();
+      const mouseX = e.clientX - (rect.left + rect.width / 2);
+      const mouseY = e.clientY - (rect.top + rect.height / 2);
+
+      translateX = mouseX - (mouseX - translateX) * (newScale / scale);
+      translateY = mouseY - (mouseY - translateY) * (newScale / scale);
+      scale = newScale;
+
+      applyTransform(false);
+    }, { passive: false });
+
+    // 2. Pointer Events (Desktop Drag + Mobile Touch Pinch/Pan)
+    viewport.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      try { viewport.setPointerCapture(e.pointerId); } catch (_) {}
+
+      if (activePointers.size === 1) {
+        isDragging = true;
+        startPanX = e.clientX - translateX;
+        startPanY = e.clientY - translateY;
+        applyTransform(false);
+      } else if (activePointers.size === 2) {
+        isDragging = false;
+        const pts = Array.from(activePointers.values());
+        initialPinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        initialScale = scale;
+      }
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+      if (!activePointers.has(e.pointerId)) return;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (activePointers.size === 1 && isDragging) {
+        translateX = e.clientX - startPanX;
+        translateY = e.clientY - startPanY;
+        applyTransform(false);
+      } else if (activePointers.size === 2) {
+        const pts = Array.from(activePointers.values());
+        const currentDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+        if (initialPinchDist > 0) {
+          scale = Math.min(Math.max(initialScale * (currentDist / initialPinchDist), 0.2), 10);
+          applyTransform(false);
+        }
+      }
+    });
+
+    const endPointer = (e) => {
+      activePointers.delete(e.pointerId);
+      try { viewport.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (activePointers.size === 0) {
+        isDragging = false;
+        applyTransform(false);
+      } else if (activePointers.size === 1) {
+        const remaining = Array.from(activePointers.values())[0];
+        isDragging = true;
+        startPanX = remaining.x - translateX;
+        startPanY = remaining.y - translateY;
+      }
+    };
+
+    viewport.addEventListener('pointerup', endPointer);
+    viewport.addEventListener('pointercancel', endPointer);
+
+    // 3. Double click / double tap reset or zoom
+    viewport.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      if (scale !== 1 || translateX !== 0 || translateY !== 0) {
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+      } else {
+        scale = 2;
+      }
+      applyTransform(true);
+    });
+
+    // 4. Zoom Toolbar Buttons
+    if (zoomInBtn) {
+      zoomInBtn.onclick = (e) => {
+        e.stopPropagation();
+        scale = Math.min(scale * 1.25, 10);
+        applyTransform(true);
+      };
+    }
+    if (zoomOutBtn) {
+      zoomOutBtn.onclick = (e) => {
+        e.stopPropagation();
+        scale = Math.max(scale / 1.25, 0.2);
+        applyTransform(true);
+      };
+    }
+    if (zoomResetBtn) {
+      zoomResetBtn.onclick = (e) => {
+        e.stopPropagation();
+        scale = 1;
+        translateX = 0;
+        translateY = 0;
+        applyTransform(true);
+      };
+    }
+  }
+
   async function openFilePreview(fileUrl, fileName, fileSize = '') {
     // 严格限制: 仅图片、文档 (docx/pptx/xlsx/pdf) 和 md 文件允许弹窗预览
     if (!isPreviewableFile(fileName)) {
@@ -923,12 +1086,7 @@
 
     // 3. IMAGES (JPG, PNG, GIF, WEBP, SVG)
     if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
-      el.previewContainer.innerHTML = `
-        <div class="image-zoom-container" style="display:flex; justify-content:center; align-items:center; width:100%; height:100%; min-height:360px;">
-          <img src="${fileUrl}" alt="${escapeHTML(fileName)}" style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:6px; box-shadow:0 8px 30px rgba(0,0,0,0.5);">
-        </div>
-      `;
-      el.previewHintText.textContent = '提示：图片支持鼠标右键“复制图片”或保存原图，点击右上角“新窗口”可全屏查看';
+      renderImagePreviewWithZoom(fileUrl, fileName);
       return;
     }
 
