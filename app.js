@@ -654,6 +654,7 @@
 
     // Remove any duplicate heading matching the note title at the beginning of content
     let cleanContent = (note.content || '').trim();
+    cleanContent = cleanContent.replace(/^#+\s*(\r?\n)*/, '');
     const headingMatch = cleanContent.match(/^(?:#{1,6})\s*([^\r\n]+)/);
     if (headingMatch) {
       const hText = headingMatch[1].replace(/[\s\-_——,，、：:()（）之与及的和的与]/g, '').toLowerCase();

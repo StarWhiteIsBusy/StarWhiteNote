@@ -4,10 +4,11 @@ import urllib.parse
 import re
 from datetime import datetime
 
-ROOT_DIR = r"C:\Users\PC\Desktop\cui\StarWhiteNote_web"
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 NOTES_DIR = os.path.join(ROOT_DIR, "notes")
 OUTPUT_FILE = os.path.join(ROOT_DIR, "notes.json")
 DATA_FILE = os.path.join(ROOT_DIR, "data", "notes.json")
+PUBLIC_FILE = os.path.join(ROOT_DIR, "public", "notes.json")
 
 IMG_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'}
 DOC_EXTS = {'.xmind', '.docx', '.xlsx', '.pptx', '.pdf', '.ora', '.excalidraw', '.zip', '.rar'}
@@ -18,6 +19,13 @@ def strip_duplicate_heading(title, content):
     lines = content.strip().splitlines()
     if lines:
         first = lines[0].strip()
+        # If first line is empty heading like '#' or '##'
+        if re.match(r'^#+\s*$', first):
+            lines = lines[1:]
+            while lines and not lines[0].strip():
+                lines = lines[1:]
+            return "\n".join(lines).strip()
+
         if first.startswith('#'):
             h_text = re.sub(r'^#+\s*', '', first)
             clean_h = re.sub(r'[\s\-_——,，、：:()（）之与及的和的与]', '', h_text.lower())
@@ -128,6 +136,11 @@ def run():
     data_dir = os.path.dirname(DATA_FILE)
     if os.path.exists(data_dir):
         with open(DATA_FILE, "w", encoding="utf-8") as fp:
+            fp.write(json_str)
+
+    pub_dir = os.path.dirname(PUBLIC_FILE)
+    if os.path.exists(pub_dir):
+        with open(PUBLIC_FILE, "w", encoding="utf-8") as fp:
             fp.write(json_str)
 
     print(f"Successfully generated notes.json with {len(notes_list)} articles from subfolders!")

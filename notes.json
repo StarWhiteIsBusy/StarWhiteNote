@@ -150,5 +150,33 @@
         "size": 164328
       }
     ]
+  },
+  {
+    "id": "%E8%8B%B1%E8%AF%AD-%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89",
+    "title": "阅读理解推断题（下）",
+    "tags": [
+      "英语"
+    ],
+    "date": "2026-11-14",
+    "content": "## 一、写作意图题常见信号词\n- purpose, intend to, aim to, want to, in order to\n\n## 二、解题策略\n- 1. 推断写作意图 / 目的：\n  - ① 主旨推断法：根据文章或段落**主旨**推断作者的写作目的\n  - ② 文体推断法：\n    - 议论文：说服读者接受某个观点（1个观点）\n    - 说明文：介绍某一事物\n    - 记叙文：讲述故事或分享经历，表达感悟\n    - 广告应用文：推销产品、服务，吸引顾客\n    - 新闻：to inform / report\n- 2. 判断文章出处：\n  - 题干设置：be from, come from, be taken, appear\n  - 干扰选项：paper, novel, text book\n- 3. 推断观点态度：\n  - 解题关键：明确“问谁”，以及“对什么事”\n- 4. 推测下一段内容：\n  - 寻找线索：重点关注最后一段反复提及的名词",
+    "images": [
+      {
+        "name": "阅读理解之推理判断题（下）.png",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.png",
+        "size": 89672
+      },
+      {
+        "name": "阅读理解推理判断下.png",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E4%B8%8B.png",
+        "size": 334952
+      }
+    ],
+    "files": [
+      {
+        "name": "阅读理解之推理判断题（下）.xmind",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.xmind",
+        "size": 157022
+      }
+    ]
   }
 ]

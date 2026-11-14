@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add notes.json data/notes.json || true
+          git add notes.json data/notes.json public/notes.json || true
           if git diff --staged --quiet; then
             echo "没有检测到索引变动，无需提交。"
           else
