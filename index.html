@@ -250,12 +250,12 @@
         </p>
 
         <div style="background: var(--bg-hover); padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 1.25rem;">
-          <code style="font-size: 0.95rem; font-weight: 600; color: var(--primary); word-break: break-all;">https://starwhiteisbusy.github.io/StarWhiteNote/</code>
+          <code id="shareModalUrlCode" style="font-size: 0.95rem; font-weight: 600; color: var(--primary); word-break: break-all;">https://starwhitenote.xyz/</code>
           <button id="copySiteUrlBtn" class="btn btn-primary btn-sm" style="flex-shrink:0;">复制链接</button>
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1rem 0;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://starwhiteisbusy.github.io/StarWhiteNote/" alt="二维码" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); padding: 6px; background: #fff;" onerror="this.style.display='none'">
+          <img id="shareModalQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://starwhitenote.xyz/" alt="二维码" style="width: 160px; height: 160px; border-radius: 8px; border: 1px solid var(--border-color); padding: 6px; background: #fff;" onerror="this.style.display='none'">
           <span style="font-size: 0.8rem; color: var(--text-tertiary); margin-top: 0.5rem;">📱 微信/手机相机扫码即可直接访问</span>
         </div>
       </div>

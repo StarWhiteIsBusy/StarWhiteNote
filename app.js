@@ -1261,15 +1261,29 @@
       el.cdnTogglePill.onclick = cycleAccelMode;
     }
 
-    // Share Website Modal (GitHub Pages URL)
+    // Share Website Modal (Custom Domain & GitHub Pages)
     const shareSiteBtn = document.getElementById('shareSiteBtn');
     const shareSiteModal = document.getElementById('shareSiteModal');
     const closeShareModalBtn = document.getElementById('closeShareModalBtn');
     const copySiteUrlBtn = document.getElementById('copySiteUrlBtn');
-    const GITHUB_PAGES_URL = 'https://starwhiteisbusy.github.io/StarWhiteNote/';
+    const shareModalUrlCode = document.getElementById('shareModalUrlCode');
+    const shareModalQrImg = document.getElementById('shareModalQrImg');
+
+    function getActiveSiteUrl() {
+      if (location.hostname === 'starwhitenote.xyz' || location.hostname === 'www.starwhitenote.xyz') {
+        return 'https://' + location.hostname + '/';
+      }
+      if (location.hostname.includes('github.io')) {
+        return location.origin + location.pathname;
+      }
+      return 'https://starwhitenote.xyz/';
+    }
 
     if (shareSiteBtn && shareSiteModal) {
       shareSiteBtn.onclick = () => {
+        const currentUrl = getActiveSiteUrl();
+        if (shareModalUrlCode) shareModalUrlCode.textContent = currentUrl;
+        if (shareModalQrImg) shareModalQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(currentUrl)}`;
         shareSiteModal.style.display = 'flex';
       };
     }
@@ -1280,10 +1294,11 @@
 
     if (copySiteUrlBtn) {
       copySiteUrlBtn.onclick = () => {
-        navigator.clipboard.writeText(GITHUB_PAGES_URL).then(() => {
+        const urlToCopy = getActiveSiteUrl();
+        navigator.clipboard.writeText(urlToCopy).then(() => {
           showToast('✅ 网址已复制到剪贴板！可直接发送给好友或微信浏览。', 'success');
         }).catch(() => {
-          prompt('请复制本站 GitHub Pages 网址：', GITHUB_PAGES_URL);
+          prompt('请复制本站网址：', urlToCopy);
         });
       };
     }

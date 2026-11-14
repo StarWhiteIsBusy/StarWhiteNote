@@ -3,7 +3,7 @@
 > **GitHub Pages 免费托管 · 多线国内极速镜像源 · 毫秒级即时加载 · 严格文档排版预览**
 
 <p align="center">
-  <a href="https://starwhiteisbusy.github.io/StarWhiteNote/"><img src="https://img.shields.io/badge/Website-访问主页-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website"></a>
+  <a href="https://starwhitenote.xyz/"><img src="https://img.shields.io/badge/Website-访问主页-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website"></a>
   <a href="https://github.com/StarWhiteIsBusy/StarWhiteNote"><img src="https://img.shields.io/badge/GitHub-仓库主页-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repo"></a>
   <a href="https://github.com/StarWhiteIsBusy/StarWhiteNote/releases"><img src="https://img.shields.io/badge/Releases-发布新笔记-10B981?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Releases"></a>
 </p>
@@ -12,7 +12,8 @@
 
 ## 🌐 网站专属在线地址
 
-👉 **[https://starwhiteisbusy.github.io/StarWhiteNote/](https://starwhiteisbusy.github.io/StarWhiteNote/)**
+👉 **[https://starwhitenote.xyz/](https://starwhitenote.xyz/)** （独立顶级域名）
+备用地址：[https://starwhiteisbusy.github.io/StarWhiteNote/](https://starwhiteisbusy.github.io/StarWhiteNote/)
 
 - **零成本永久运行**：完全托管在 GitHub Pages，不需要任何服务器或数据库。
 - **免登录公开畅读**：任何人打开网址即可直接阅读全部笔记、预览文档排版与高速下载资料。

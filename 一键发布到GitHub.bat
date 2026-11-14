@@ -1,9 +1,9 @@
 @echo off
 cd /d "%~dp0"
-title StarWhiteNote - Ò»¼ü·¢²¼µ½ GitHub
+title StarWhiteNote - ä¸€é”®å‘å¸ƒåˆ° GitHub
 
 echo ==========================================================
-echo        StarWhiteNote - Ò»¼ü·¢²¼µ½ GitHub
+echo        StarWhiteNote - ä¸€é”®å‘å¸ƒåˆ° GitHub
 echo ==========================================================
 echo.
 
@@ -15,37 +15,37 @@ if %errorlevel% neq 0 (
     )
 )
 
-echo Ä¿±ê²Ö¿â: https://github.com/StarWhiteIsBusy/StarWhiteNote.git
+echo ç›®æ ‡ä»“åº“: https://github.com/StarWhiteIsBusy/StarWhiteNote.git
 echo.
-echo ÕıÔÚ¼ì²é±¾µØÎÄ¼ş±ä¶¯...
+echo æ­£åœ¨æ£€æŸ¥æœ¬åœ°æ–‡ä»¶å˜åŠ¨...
 "%GIT_EXE%" status --short
 echo.
 
 set "commit_msg="
-set /p commit_msg="ÇëÊäÈë±¾´Î¸üĞÂËµÃ÷£¨Ö±½Ó°´»Ø³µÄ¬ÈÏÊ¹ÓÃµ±Ç°Ê±¼ä£©: "
+set /p commit_msg="è¯·è¾“å…¥æœ¬æ¬¡æ›´æ–°è¯´æ˜ï¼ˆç›´æ¥æŒ‰å›è½¦é»˜è®¤ä½¿ç”¨å½“å‰æ—¶é—´ï¼‰: "
 if not defined commit_msg set commit_msg=Update notes %date% %time:~0,5%
 
 echo.
-echo [1/3] ÕıÔÚÌí¼ÓÎÄ¼şµ½Ôİ´æÇø (git add) ...
+echo [1/3] æ­£åœ¨æ·»åŠ æ–‡ä»¶åˆ°æš‚å­˜åŒº (git add) ...
 "%GIT_EXE%" add .
 
-echo [2/3] ÕıÔÚ´´½¨Ìá½»°æ±¾ (git commit) ...
+echo [2/3] æ­£åœ¨åˆ›å»ºæäº¤ç‰ˆæœ¬ (git commit) ...
 "%GIT_EXE%" commit -m "%commit_msg%"
 
-echo [3/3] ÕıÔÚÍÆËÍµ½ GitHub ÔÆ¶Ë (git push) ...
+echo [3/3] æ­£åœ¨æ¨é€åˆ° GitHub äº‘ç«¯ (git push) ...
 "%GIT_EXE%" push -u origin main
 
 if %errorlevel% equ 0 (
     echo.
     echo ==========================================================
-    echo [OK] ·¢²¼³É¹¦£¡
-    echo ÄãµÄÍøÕ¾µØÖ·: https://starwhiteisbusy.github.io/StarWhiteNote/
-    echo GitHub Pages ½«ÔÚ 30 ÃëÖÁ 1 ·ÖÖÓÄÚÈ«Íø×Ô¶¯Í¬²½ÉúĞ§£¡
+    echo [OK] å‘å¸ƒæˆåŠŸï¼
+    echo ä½ çš„ç½‘ç«™åœ°å€: https://starwhitenote.xyz/ (æˆ– https://starwhiteisbusy.github.io/StarWhiteNote/)
+    echo GitHub Pages å°†åœ¨ 30 ç§’è‡³ 1 åˆ†é’Ÿå†…å…¨ç½‘è‡ªåŠ¨åŒæ­¥ç”Ÿæ•ˆï¼
     echo ==========================================================
 ) else (
     echo.
     echo ==========================================================
-    echo [ÌáÊ¾] ÕıÔÚ³¢ÊÔÀ­È¡ºÏ²¢ÔÆ¶Ë¸üĞÂ²¢ÖØĞÂÍÆËÍ...
+    echo [æç¤º] æ­£åœ¨å°è¯•æ‹‰å–åˆå¹¶äº‘ç«¯æ›´æ–°å¹¶é‡æ–°æ¨é€...
     "%GIT_EXE%" pull origin main --rebase --allow-unrelated-histories
     "%GIT_EXE%" push -u origin main
     echo ==========================================================
