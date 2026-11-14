@@ -1,6 +1,7 @@
 ﻿import os
 import json
 import urllib.parse
+import re
 from datetime import datetime
 
 ROOT_DIR = r"C:\Users\PC\Desktop\cui\StarWhiteNote_web"
@@ -10,6 +11,35 @@ DATA_FILE = os.path.join(ROOT_DIR, "data", "notes.json")
 
 IMG_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'}
 DOC_EXTS = {'.xmind', '.docx', '.xlsx', '.pptx', '.pdf', '.ora', '.excalidraw', '.zip', '.rar'}
+
+def strip_duplicate_heading(title, content):
+    if not content:
+        return "该专题包含相关板书截图与思维导图资料。"
+    lines = content.strip().splitlines()
+    if lines:
+        first = lines[0].strip()
+        if first.startswith('#'):
+            h_text = re.sub(r'^#+\s*', '', first)
+            clean_h = re.sub(r'[\s\-_——,，、：:()（）之与及的和的与]', '', h_text.lower())
+            clean_t = re.sub(r'[\s\-_——,，、：:()（）之与及的和的与]', '', title.lower())
+            
+            is_dup = False
+            if clean_h and clean_t:
+                if clean_h in clean_t or clean_t in clean_h:
+                    is_dup = True
+                else:
+                    h_set = set(clean_h)
+                    t_set = set(clean_t)
+                    common = h_set & t_set
+                    if len(common) / max(len(h_set), len(t_set)) >= 0.7:
+                        is_dup = True
+            
+            if is_dup:
+                lines = lines[1:]
+                while lines and not lines[0].strip():
+                    lines = lines[1:]
+                return "\n".join(lines).strip()
+    return content.strip()
 
 def run():
     if not os.path.exists(NOTES_DIR):
@@ -27,21 +57,19 @@ def run():
             art_path = os.path.join(sub_path, article)
             files_in_art = os.listdir(art_path)
 
-            content = ""
+            raw_content = ""
             md_files = [f for f in files_in_art if f.lower().endswith('.md')]
             
             # Read markdown content directly as main article text
             if md_files:
-                # Prefer the first or primary md
                 primary_md = md_files[0]
                 try:
                     with open(os.path.join(art_path, primary_md), "r", encoding="utf-8") as fp:
-                        content = fp.read().strip()
+                        raw_content = fp.read().strip()
                 except Exception as e:
                     print(f"Error reading {primary_md}: {e}")
             
-            if not content:
-                content = f"### {article}\n\n该专题包含相关板书截图与思维导图资料。"
+            content = strip_duplicate_heading(article, raw_content)
 
             images = []
             files = []
@@ -75,8 +103,7 @@ def run():
                 elif ext in DOC_EXTS:
                     files.append(item)
                 elif ext == '.md':
-                    # Optional: also allow downloading md as attachment if desired
-                    # But per user instruction: md is displayed as the main text
+                    # Per user instruction: markdown is rendered directly as article text
                     pass
 
             date_str = datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d")

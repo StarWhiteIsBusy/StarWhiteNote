@@ -651,7 +651,33 @@
     el.readerTitle.textContent = note.title;
     el.readerDate.textContent = note.date || '';
     el.readerTags.innerHTML = (note.tags || []).map(t => `<span class="badge badge-tag">#${escapeHTML(t)}</span>`).join('');
-    el.readerContent.innerHTML = renderMarkdown(note.content);
+
+    // Remove any duplicate heading matching the note title at the beginning of content
+    let cleanContent = (note.content || '').trim();
+    const headingMatch = cleanContent.match(/^(?:#{1,6})\s*([^\r\n]+)/);
+    if (headingMatch) {
+      const hText = headingMatch[1].replace(/[\s\-_——,，、：:()（）之与及的和的与]/g, '').toLowerCase();
+      const tText = (note.title || '').replace(/[\s\-_——,，、：:()（）之与及的和的与]/g, '').toLowerCase();
+      let isDup = false;
+      if (hText && tText) {
+        if (hText.includes(tText) || tText.includes(hText)) {
+          isDup = true;
+        } else {
+          const hSet = new Set(hText.split(''));
+          const tSet = new Set(tText.split(''));
+          let common = 0;
+          hSet.forEach(char => { if (tSet.has(char)) common++; });
+          if (common / Math.max(hSet.size, tSet.size) >= 0.7) {
+            isDup = true;
+          }
+        }
+      }
+      if (isDup) {
+        cleanContent = cleanContent.replace(/^(?:#{1,6})\s*[^\r\n]+(\r?\n)*/, '').trim();
+      }
+    }
+
+    el.readerContent.innerHTML = renderMarkdown(cleanContent);
 
     // Images Gallery in reader
     if (note.images && note.images.length > 0) {
