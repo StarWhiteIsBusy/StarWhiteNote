@@ -11,201 +11,87 @@ DATA_FILE = os.path.join(ROOT_DIR, "data", "notes.json")
 IMG_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'}
 DOC_EXTS = {'.xmind', '.docx', '.xlsx', '.pptx', '.pdf', '.ora', '.excalidraw', '.zip', '.rar'}
 
-TOPIC_RULES = [
-    {
-        "id": "math-tangent",
-        "title": "曲线的切线与公切线",
-        "subject": "数学",
-        "date": "2026-11-14",
-        "summary": "高中数学导数大题高频考点：曲线在某点切线方程、过定点引切线、有公共切点的公切线及非公共切点公切线先分后合联立解法。",
-        "match": ["曲线的切线", "数学笔记5"],
-        "mdFile": "数学笔记5_曲线的切线与公切线.md"
-    },
-    {
-        "id": "math-quadratic",
-        "title": "二次函数与一元二次方程、不等式",
-        "subject": "数学",
-        "date": "2026-11-14",
-        "summary": "高中数学核心基石：二次函数三大解析式（一般式/顶点式/两根式）、配方推导、根的判别式与韦达定理、一元二次不等式解法与特殊解集。",
-        "match": ["二次函数", "数学笔记4"],
-        "mdFile": "数学笔记4_二次函数与一元二次方程不等式.md"
-    },
-    {
-        "id": "math-abs-func",
-        "title": "绝对值不等式与函数",
-        "subject": "数学",
-        "date": "2026-11-14",
-        "summary": "高中数学常考模型：实数绝对值定义与解集、绝对值函数翻折法则、三角不等式链、锅形拓展模型（尖底锅/平底锅/歪底锅）及极值口算口诀。",
-        "match": ["绝对值", "数学笔记3"],
-        "mdFile": "数学笔记3_绝对值不等式与函数.md"
-    },
-    {
-        "id": "math-basic-ineq",
-        "title": "基本不等式及其应用",
-        "subject": "数学",
-        "date": "2026-11-12",
-        "summary": "高中数学必修核心：基本不等式四项链条（调和≤几何≤算术≤平方）、常数代换法（“1”的代换）、权方和不等式、一正二定三取等六字口诀。",
-        "match": ["基本不等式", "数学笔记2"],
-        "mdFile": "数学笔记2_基本不等式与应用技巧.md"
-    },
-    {
-        "id": "math-identity",
-        "title": "等式与不等式性质、证明方法与常用恒等式",
-        "subject": "数学",
-        "date": "2026-11-12",
-        "summary": "高中数学基础概念与常用代数工具：实数大小比较基本事实、等式与不等式基本性质、证明方法（综合法/分析法/反证法）、高频平方与立方乘法公式。",
-        "match": ["数学笔记1", "恒等式"],
-        "mdFile": "数学笔记1_等式不等式与常用恒等式.md"
-    },
-    {
-        "id": "math-set-logic",
-        "title": "集合与常用逻辑用语",
-        "subject": "数学",
-        "date": "2026-11-10",
-        "summary": "高中数学开篇重点：集合的基本概念、交集/并集/补集运算、常用逻辑用语、充分必要条件与命题真假判定。",
-        "match": ["集合", "常用逻辑用语", "命题与逻辑用语"],
-        "mdFile": None
-    },
-    {
-        "id": "english-inference",
-        "title": "阅读理解之推理判断题（上）",
-        "subject": "英语",
-        "date": "2026-11-14",
-        "summary": "高考英语阅读理解核心题型攻坚：推理判断题六大考查形式、四大解题策略、三不选排除陷阱及“立足原文、就近推导”解题法则。",
-        "match": ["推理判断", "阅读理解之推理判断题", "阅读理解推理判断", "阅读1", "阅读2"],
-        "mdFile": "英语阅读_推理判断题上_XMind.md"
-    },
-    {
-        "id": "english-detail",
-        "title": "英语阅读理解：细节理解题解题攻略",
-        "subject": "英语",
-        "date": "2026-11-12",
-        "summary": "高考英语阅读大头题型：“定位—比对—秒杀”三阶法解题步骤、题干标志词识别、回文定位三大原则及正确/干扰选项特征剖析。",
-        "match": ["细节理解", "英语阅读理解1"],
-        "mdFile": "英语阅读_细节理解题解题法_XMind.md"
-    },
-    {
-        "id": "english-vocab",
-        "title": "高考英语词汇课：核心解题方法与词汇梳理",
-        "subject": "英语",
-        "date": "2026-11-11",
-        "summary": "英语词汇专项精讲：核心高频词汇分类记忆、阅读词汇猜词技巧、构词法与词性转换解题方法。",
-        "match": ["词汇第一课", "词汇课下"],
-        "mdFile": None
-    },
-    {
-        "id": "physics-chase",
-        "title": "高中物理：相遇与追及问题专题分析",
-        "subject": "物理",
-        "date": "2026-11-13",
-        "summary": "高中物理必修一重点难点：相遇与追及的两大基本关系（时间/位移）、速度相等临界状态分析、极值判断与避碰条件。",
-        "match": ["相遇", "追及"],
-        "mdFile": "相遇与追及问题专题.md"
-    }
-]
-
 def run():
-    subject_folders = [f for f in os.listdir(NOTES_DIR) if os.path.isdir(os.path.join(NOTES_DIR, f))]
-    subject_files_map = {}
-    for sub in subject_folders:
-        sub_path = os.path.join(NOTES_DIR, sub)
-        files = [f for f in os.listdir(sub_path) if os.path.isfile(os.path.join(sub_path, f))]
-        subject_files_map[sub] = files
+    if not os.path.exists(NOTES_DIR):
+        print(f"Directory not found: {NOTES_DIR}")
+        return
 
-    assigned_files = set()
+    subject_folders = [f for f in os.listdir(NOTES_DIR) if os.path.isdir(os.path.join(NOTES_DIR, f))]
     notes_list = []
 
-    for topic in TOPIC_RULES:
-        sub_files = subject_files_map.get(topic["subject"], [])
-        matched = [f for f in sub_files if any(m in f for m in topic["match"])]
-        for f in matched:
-            assigned_files.add(f"{topic['subject']}/{f}")
+    for subject in subject_folders:
+        sub_path = os.path.join(NOTES_DIR, subject)
+        article_folders = [f for f in os.listdir(sub_path) if os.path.isdir(os.path.join(sub_path, f))]
 
-        content = topic["summary"]
-        if topic["mdFile"] and topic["mdFile"] in sub_files:
-            try:
-                md_path = os.path.join(NOTES_DIR, topic["subject"], topic["mdFile"])
-                with open(md_path, "r", encoding="utf-8") as fp:
-                    text = fp.read().strip()
-                    if text:
-                        content = text
-            except Exception as e:
-                pass
+        for article in article_folders:
+            art_path = os.path.join(sub_path, article)
+            files_in_art = os.listdir(art_path)
 
-        images = []
-        files = []
+            content = ""
+            md_files = [f for f in files_in_art if f.lower().endswith('.md')]
+            
+            # Read markdown content directly as main article text
+            if md_files:
+                # Prefer the first or primary md
+                primary_md = md_files[0]
+                try:
+                    with open(os.path.join(art_path, primary_md), "r", encoding="utf-8") as fp:
+                        content = fp.read().strip()
+                except Exception as e:
+                    print(f"Error reading {primary_md}: {e}")
+            
+            if not content:
+                content = f"### {article}\n\n该专题包含相关板书截图与思维导图资料。"
 
-        for f_name in matched:
-            ext = os.path.splitext(f_name)[1].lower()
-            file_path = os.path.join(NOTES_DIR, topic["subject"], f_name)
-            stat = os.stat(file_path)
-            # URL using forward slash
-            sub_enc = urllib.parse.quote(topic["subject"])
-            fn_enc = urllib.parse.quote(f_name)
-            rel_url = f"notes/{sub_enc}/{fn_enc}"
-
-            item = {
-                "name": f_name,
-                "url": rel_url,
-                "size": stat.st_size
-            }
-            if ext in IMG_EXTS:
-                images.append(item)
-            elif ext in DOC_EXTS or ext == ".md":
-                files.append(item)
-
-        if topic["mdFile"] and topic["mdFile"] in sub_files and not any(f["name"] == topic["mdFile"] for f in files):
-            md_path = os.path.join(NOTES_DIR, topic["subject"], topic["mdFile"])
-            stat = os.stat(md_path)
-            sub_enc = urllib.parse.quote(topic["subject"])
-            fn_enc = urllib.parse.quote(topic["mdFile"])
-            files.insert(0, {
-                "name": topic["mdFile"],
-                "url": f"notes/{sub_enc}/{fn_enc}",
-                "size": stat.st_size
-            })
-
-        notes_list.append({
-            "id": topic["id"],
-            "title": topic["title"],
-            "tags": [topic["subject"]],
-            "date": topic["date"],
-            "content": content,
-            "images": images,
-            "files": files
-        })
-
-    # Unassigned files
-    for sub in subject_folders:
-        sub_files = subject_files_map.get(sub, [])
-        remaining = [f for f in sub_files if f"{sub}/{f}" not in assigned_files]
-        if remaining:
             images = []
             files = []
-            for f_name in remaining:
-                ext = os.path.splitext(f_name)[1].lower()
-                stat = os.stat(os.path.join(NOTES_DIR, sub, f_name))
-                sub_enc = urllib.parse.quote(sub)
-                fn_enc = urllib.parse.quote(f_name)
+            latest_mtime = os.path.getmtime(art_path)
+
+            for fname in files_in_art:
+                fpath = os.path.join(art_path, fname)
+                if not os.path.isfile(fpath):
+                    continue
+                
+                mtime = os.path.getmtime(fpath)
+                if mtime > latest_mtime:
+                    latest_mtime = mtime
+
+                ext = os.path.splitext(fname)[1].lower()
+                stat = os.stat(fpath)
+
+                sub_enc = urllib.parse.quote(subject)
+                art_enc = urllib.parse.quote(article)
+                fn_enc = urllib.parse.quote(fname)
+                rel_url = f"notes/{sub_enc}/{art_enc}/{fn_enc}"
+
                 item = {
-                    "name": f_name,
-                    "url": f"notes/{sub_enc}/{fn_enc}",
+                    "name": fname,
+                    "url": rel_url,
                     "size": stat.st_size
                 }
+
                 if ext in IMG_EXTS:
                     images.append(item)
-                else:
+                elif ext in DOC_EXTS:
                     files.append(item)
+                elif ext == '.md':
+                    # Optional: also allow downloading md as attachment if desired
+                    # But per user instruction: md is displayed as the main text
+                    pass
+
+            date_str = datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d")
+
             notes_list.append({
-                "id": f"unassigned-{sub}",
-                "title": f"{sub} 补充资料",
-                "tags": [sub],
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "content": f"{sub} 学科补充资料与未分类笔记。",
+                "id": f"{urllib.parse.quote(subject)}-{urllib.parse.quote(article)}",
+                "title": article,
+                "tags": [subject],
+                "date": date_str,
+                "content": content,
                 "images": images,
                 "files": files
             })
 
+    # Sort: newest first
     notes_list.sort(key=lambda x: x.get("date", ""), reverse=True)
 
     json_str = json.dumps(notes_list, ensure_ascii=False, indent=2)
@@ -217,9 +103,10 @@ def run():
         with open(DATA_FILE, "w", encoding="utf-8") as fp:
             fp.write(json_str)
 
-    print(f"Successfully generated notes.json with {len(notes_list)} notes!")
+    print(f"Successfully generated notes.json with {len(notes_list)} articles from subfolders!")
     for n in notes_list:
-        print(f" - [{','.join(n['tags'])}] {n['title']} (Images: {len(n['images'])}, Files: {len(n['files'])})")
+        md_status = "MD正文已载入" if len(n['content']) > 100 else "无独立MD"
+        print(f" - [{','.join(n['tags'])}] {n['title']} ({md_status}, 字数:{len(n['content'])}, 图片:{len(n['images'])}, 附件:{len(n['files'])})")
 
 if __name__ == "__main__":
     run()
