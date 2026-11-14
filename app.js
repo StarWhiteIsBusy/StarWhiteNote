@@ -294,9 +294,34 @@
   const GITHUB_RELEASES_API = 'https://api.github.com/repos/StarWhiteIsBusy/StarWhiteNote/releases';
 
   function transformReleaseToNote(rel) {
-    // 1. Tag name -> tags array (supports comma/space separated tags like: 英语, 思维导图)
-    const rawTag = (rel.tag_name || '未分类').trim();
-    const tags = rawTag.split(/[,;\s/]+/).map(t => t.trim()).filter(Boolean);
+    // 1. Tag parsing with smart category grouping:
+    // 支持序号防重复（如 数学-2, 数学_02, 数学2 均自动归入 #数学 主分类）
+    // 支持副标题（如 数学-绝对值 自动归入 #数学 与 #绝对值）
+    // 支持在 Description 正文第一行写：标签: 数学, 导图
+    let tags = [];
+    const bodyText = rel.body || '';
+    const tagMatch = bodyText.match(/^(?:标签|分类|Tag|Tags)[:：]\s*([^\r\n]+)/im);
+    if (tagMatch) {
+      tags = tagMatch[1].split(/[,;\s/]+/).map(t => t.trim()).filter(Boolean);
+    }
+
+    if (tags.length === 0) {
+      const rawTag = (rel.tag_name || '未分类').trim();
+      const parts = rawTag.split(/[,;\s/]+/).map(t => t.trim()).filter(Boolean);
+      for (const p of parts) {
+        // e.g. "数学-2" / "数学_02" / "数学2" -> 智能提取主分类 "数学"
+        const mainCat = p.replace(/[-_.]\d+$/, '').replace(/\d+$/, '').trim();
+        if (mainCat) tags.push(mainCat);
+        // 若为 "数学-绝对值"，同时登记两个分类
+        if (p.includes('-') || p.includes('_')) {
+          const subparts = p.split(/[-_]+/).map(s => s.trim()).filter(s => s && !/^\d+$/.test(s));
+          subparts.forEach(sp => { if (!tags.includes(sp)) tags.push(sp); });
+        }
+      }
+    }
+
+    if (tags.length === 0) tags = ['未分类'];
+    tags = Array.from(new Set(tags));
 
     // 2. Assets -> images & files
     const images = [];
