@@ -1,37 +1,37 @@
 [
   {
-    "id": "welcome-starwhitenote",
-    "title": "StarWhiteNote 架构指南与使用手册（含 Word 排版与架构截图）",
-    "tags": ["使用指南", "Word文档", "项目手册"],
-    "date": "2026-11-12",
-    "content": "欢迎使用 StarWhiteNote 纯静态私有笔记与文件共享站！本站无需任何后端服务器，完全基于 GitHub Pages 运行。\n\n所有笔记和文件全部存储在你的 GitHub 仓库中。访客打开网页可以直接在线排版级预览 Word 文档、点击放大图片画廊、查看 Excel 工作表，或一键点击高速下载原文件。",
+    "id": "rel-444166264",
+    "title": "相遇追及",
+    "tags": ["物理"],
+    "date": "2026-11-13",
+    "content": "高中物理必修一：相遇与追及问题专题分析与思维导图总结。",
     "images": [
       {
-        "name": "共享平台架构与操作界面截图.png",
-        "url": "files/共享平台架构与操作界面截图.png",
-        "size": 23606
+        "name": "IMG_20261113_194601.jpg",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E7%89%A9%E7%90%86/IMG_20261113_194601.jpg",
+        "size": 2459256
+      }
+    ],
+    "files": []
+  },
+  {
+    "id": "rel-442740518",
+    "title": "基本不等式及其应用",
+    "tags": ["数学"],
+    "date": "2026-11-12",
+    "content": "高中数学核心知识点：基本不等式（均值不等式）的求最值方法与解题技巧。",
+    "images": [
+      {
+        "name": "default.png",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E6%95%B0%E5%AD%A6/default.png",
+        "size": 256548
       }
     ],
     "files": [
       {
-        "name": "StarWhiteNote使用指南与功能手册.docx",
-        "url": "files/StarWhiteNote使用指南与功能手册.docx",
-        "size": 3131
-      }
-    ]
-  },
-  {
-    "id": "github-pages-workflow",
-    "title": "如何更新笔记与上传文件：GitHub 极简操作说明（含 Excel 清单）",
-    "tags": ["使用指南", "Excel表格", "快速上手"],
-    "date": "2026-11-12",
-    "content": "在 GitHub 上更新你的笔记和文件极其简单：\n\n1. 上传新文件：在你的 GitHub 项目中进入 `files/` 文件夹，点击右上角【Add file】->【Upload files】，把你的 Word、图片或文档拖进去，点击提交；\n2. 登记笔记：点击打开项目根目录下的 `notes.json`，点击铅笔图标编辑，仿照格式复制一条笔记，写上标题、标签和文件名，点击提交保存；\n3. 刷新网页：等待约 30 秒，GitHub Pages 会自动更新，所有人即可在网页上搜索、预览和下载你的最新文件！",
-    "images": [],
-    "files": [
-      {
-        "name": "项目进度与任务清单示例.xlsx",
-        "url": "files/项目进度与任务清单示例.xlsx",
-        "size": 18428
+        "name": "map1.xmind",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E6%95%B0%E5%AD%A6/map1.xmind",
+        "size": 273888
       }
     ]
   }

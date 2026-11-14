@@ -9,22 +9,51 @@
   let activeTag = 'all';
   let searchQuery = '';
 
-  // Check if running on local server (Node.js server.js)
-  const isLocalServer = (
-    window.location.protocol === 'http:' &&
-    (window.location.hostname === 'localhost' ||
-     window.location.hostname === '127.0.0.1' ||
-     window.location.hostname.startsWith('192.168.') ||
-     window.location.hostname.startsWith('10.') ||
-     window.location.hostname.startsWith('172.'))
-  );
+  // Domestic High-Speed Mirror Lines for GitHub Pages (国内高速镜像源与自动容灾)
+  const MIRROR_NODES = [
+    {
+      id: 'gh-proxy',
+      name: '🚀 极速镜像 1 (GH-Proxy 专线 - 推荐)',
+      short: '🚀 极速镜像 1 (推荐)',
+      desc: '专为国内网络优化，超快加载图片与高速下载附件，免翻墙秒开',
+      prefix: 'https://gh-proxy.com/',
+      color: '#10b981'
+    },
+    {
+      id: 'ghproxy-net',
+      name: '⚡ 极速镜像 2 (GHProxy.net 节点)',
+      short: '⚡ 极速镜像 2',
+      desc: '国内多线 CDN 节点加速，针对电信/移动深度优化',
+      prefix: 'https://ghproxy.net/',
+      color: '#06b6d4'
+    },
+    {
+      id: 'mirror-ghproxy',
+      name: '🛡️ 备用镜像 3 (Mirror.ghproxy)',
+      short: '🛡️ 备用镜像 3',
+      desc: '高可用稳定备用镜像代理节点',
+      prefix: 'https://mirror.ghproxy.com/',
+      color: '#8b5cf6'
+    },
+    {
+      id: 'akams',
+      name: '🚄 备用镜像 4 (Akams 镜像源)',
+      short: '🚄 备用镜像 4',
+      desc: '开源镜像加速通道，保障大文件下载顺畅',
+      prefix: 'https://github.akams.cn/',
+      color: '#f59e0b'
+    },
+    {
+      id: 'direct',
+      name: '🌐 GitHub 官方源 (直连模式)',
+      short: '🌐 官方直连',
+      desc: '直接连接 GitHub 官方原始服务器 (科学上网环境推荐)',
+      prefix: '',
+      color: '#94a3b8'
+    }
+  ];
 
-  // Multi-route acceleration modes:
-  // 1. 'local': 本地高速专线 (通过 server.js 缓存与局域网千兆分发，0ms 秒开)
-  // 2. 'mirror': 国内高速镜像 (GHProxy 镜像源，免翻墙，国内直达)
-  // 3. 'jsdelivr': 全球 Anycast CDN (jsDelivr)
-  // 4. 'direct': GitHub 官方直连 (无加速)
-  let accelMode = localStorage.getItem('starwhite_accel_mode') || (isLocalServer ? 'local' : 'mirror');
+  let currentMirrorId = localStorage.getItem('starwhite_mirror_id') || 'gh-proxy';
 
   // --- DOM Elements ---
   const el = {
@@ -98,58 +127,40 @@
     }, 3500);
   }
 
-  // --- Acceleration Routes & Mirror Sources ---
-  const ACCEL_MODES = [
-    {
-      id: 'local',
-      name: '⚡ 本地极速专线 (0ms 局域网缓存)',
-      short: '⚡ 本地极速专线',
-      desc: '通过本机内置高速代理与磁盘缓存，手机电脑同Wi-Fi千兆秒开！',
-      color: '#10b981'
-    },
-    {
-      id: 'mirror',
-      name: '🚀 国内极速镜像 (GHProxy 镜像源)',
-      short: '🚀 国内极速镜像',
-      desc: '专为国内网络优化，通过国内镜像节点加速下载，免翻墙！',
-      color: '#06b6d4'
-    },
-    {
-      id: 'jsdelivr',
-      name: '🌐 全球 Anycast CDN (jsDelivr)',
-      short: '🌐 全球 CDN',
-      desc: '全球高速 Anycast 节点分发',
-      color: '#3b82f6'
-    },
-    {
-      id: 'direct',
-      name: '🔗 GitHub 官方源 (直连模式)',
-      short: '🔗 官方直连',
-      desc: '直接连接 GitHub 官方原始服务器 (需要科学上网环境)',
-      color: '#94a3b8'
-    }
-  ];
-
+  // --- Mirror Acceleration UI & Switching ---
   function updateCdnUI() {
     if (!el.cdnBadgeText) return;
     const dot = document.querySelector('.cdn-status-dot');
-    const cur = ACCEL_MODES.find(m => m.id === accelMode) || ACCEL_MODES[0];
+    const cur = MIRROR_NODES.find(m => m.id === currentMirrorId) || MIRROR_NODES[0];
     el.cdnBadgeText.textContent = cur.short;
     if (dot) dot.style.backgroundColor = cur.color;
     if (el.cdnTogglePill) {
-      el.cdnTogglePill.title = `当前加速线路: ${cur.name}\n${cur.desc}\n(点击切换线路)`;
+      el.cdnTogglePill.title = `当前加速线路: ${cur.name}\n${cur.desc}\n(点击切换镜像线路)`;
     }
   }
 
   function cycleAccelMode() {
-    const curIdx = ACCEL_MODES.findIndex(m => m.id === accelMode);
-    const nextIdx = (curIdx + 1) % ACCEL_MODES.length;
-    accelMode = ACCEL_MODES[nextIdx].id;
-    localStorage.setItem('starwhite_accel_mode', accelMode);
+    const curIdx = MIRROR_NODES.findIndex(m => m.id === currentMirrorId);
+    const nextIdx = (curIdx + 1) % MIRROR_NODES.length;
+    currentMirrorId = MIRROR_NODES[nextIdx].id;
+    localStorage.setItem('starwhite_mirror_id', currentMirrorId);
     updateCdnUI();
-    showToast(`已切换线路: ${ACCEL_MODES[nextIdx].name}`);
+    showToast(`已切换至: ${MIRROR_NODES[nextIdx].name}`);
     renderNotes();
   }
+
+  // Global automatic fallback if an image fails to load on the current mirror
+  window.handleImageError = function (img) {
+    const rawUrl = img.dataset.rawUrl;
+    if (!rawUrl) return;
+    let attempt = parseInt(img.dataset.attempt || '0', 10);
+    attempt++;
+    if (attempt < MIRROR_NODES.length) {
+      img.dataset.attempt = attempt;
+      const node = MIRROR_NODES[attempt];
+      img.src = node.prefix ? `${node.prefix}${rawUrl}` : rawUrl;
+    }
+  };
 
   const GITHUB_REPO_URL = 'https://github.com/StarWhiteIsBusy/StarWhiteNote';
 
@@ -165,33 +176,15 @@
       rawUrl = `files/${item.name}`;
     }
 
-    // 1. Relative local path (files/...)
+    // Relative local path in repository (e.g. files/...)
     if (rawUrl.startsWith('files/')) {
-      if (isLocalServer) return rawUrl;
-      if (accelMode === 'mirror') {
-        return `https://ghproxy.net/https://raw.githubusercontent.com/StarWhiteIsBusy/StarWhiteNote/main/${rawUrl}`;
-      }
-      if (accelMode === 'jsdelivr') {
-        const cleanPath = rawUrl.replace(/^files\//, '');
-        return `https://cdn.jsdelivr.net/gh/StarWhiteIsBusy/StarWhiteNote@main/files/${cleanPath}`;
-      }
       return rawUrl;
     }
 
-    // 2. Full HTTP/HTTPS URLs (GitHub Releases downloads, etc.)
+    // Full HTTP/HTTPS URLs (GitHub Releases download assets)
     if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-      // Local Server Proxy Mode (Highest speed, local disk cache, instant 0ms)
-      if (accelMode === 'local' && isLocalServer) {
-        return `/api/asset?url=${encodeURIComponent(rawUrl)}`;
-      }
-
-      // Domestic Mirror Source (GHProxy)
-      if (accelMode === 'mirror') {
-        return `https://ghproxy.net/${rawUrl}`;
-      }
-
-      // jsDelivr or Direct
-      return rawUrl;
+      const activeNode = MIRROR_NODES.find(m => m.id === currentMirrorId) || MIRROR_NODES[0];
+      return activeNode.prefix ? `${activeNode.prefix}${rawUrl}` : rawUrl;
     }
 
     return rawUrl;
@@ -334,72 +327,95 @@
   }
 
   async function loadNotesData(isManualSync = false) {
-    if (el.notesList && !isManualSync) {
-      el.notesList.innerHTML = '<div class="loading-placeholder">正在同步最新笔记与资料...</div>';
+    if (el.notesList && !isManualSync && notes.length === 0) {
+      el.notesList.innerHTML = '<div class="loading-placeholder">正在加载笔记与思维导图...</div>';
     }
-    let cloudNotes = [];
+
     let localNotes = [];
-    let fetched = false;
+    let cloudNotes = [];
 
-    // 1. If running on local server, fetch from local releases proxy (0ms & offline resilient)
-    if (isLocalServer) {
-      try {
-        const url = isManualSync ? '/api/releases?force=1' : '/api/releases';
-        const res = await fetch(url);
-        if (res.ok) {
-          const releases = await res.json();
-          if (Array.isArray(releases) && releases.length > 0) {
-            cloudNotes = releases.map(transformReleaseToNote);
-            localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
-            fetched = true;
-          }
-        }
-      } catch (_) {}
-    }
+    // Helper: Refresh UI with given notes
+    function applyNotes(combinedList, isFromSync = false) {
+      if (!Array.isArray(combinedList) || combinedList.length === 0) return;
+      notes = combinedList;
+      const tagSet = new Set();
+      let totalFiles = 0;
+      for (const n of notes) {
+        (n.tags || []).forEach(t => {
+          if (t && t.trim()) tagSet.add(t.trim());
+        });
+        totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
+      }
+      allTags = Array.from(tagSet);
 
-    // 2. If not on local server or proxy unavailable, fetch directly from GitHub API
-    if (!fetched) {
-      try {
-        const res = await fetch(GITHUB_RELEASES_API);
-        if (res.ok) {
-          const releases = await res.json();
-          if (Array.isArray(releases) && releases.length > 0) {
-            cloudNotes = releases.map(transformReleaseToNote);
-            localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
-            fetched = true;
-          }
-        }
-      } catch (e) {
-        console.warn('GitHub API fetch failed:', e);
+      el.statNotesCount.textContent = notes.length;
+      el.statFilesCount.textContent = totalFiles;
+      el.statTagsCount.textContent = allTags.length;
+
+      renderTagsBar();
+      renderNotes();
+
+      if (isFromSync) {
+        showToast(`✅ 云端同步完成！当前共 ${notes.length} 篇笔记`, 'success');
       }
     }
 
-    // 3. Fallback to cache if network fetch failed
-    if (!fetched) {
-      const cached = localStorage.getItem('starwhite_releases_cache');
-      if (cached) {
-        try { cloudNotes = JSON.parse(cached); } catch (_) {}
-      }
-    }
-
-    // 2. Read local notes.json as base / fallback
+    // 1. Read notes.json from GitHub Pages CDN (loads in ~50ms, zero lag!)
     try {
       const res = await fetch(`notes.json?_t=${Date.now()}`);
       if (res.ok) {
         localNotes = await res.json();
-        localNotes.forEach((n, idx) => {
-          n.id = n.id || `local-${idx + 1}`;
-          n.tags = Array.isArray(n.tags) ? n.tags : [];
-          n.images = Array.isArray(n.images) ? n.images : [];
-          n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
-        });
+        if (Array.isArray(localNotes) && localNotes.length > 0) {
+          localNotes.forEach((n, idx) => {
+            n.id = n.id || `local-${idx + 1}`;
+            n.tags = Array.isArray(n.tags) ? n.tags : [];
+            n.images = Array.isArray(n.images) ? n.images : [];
+            n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
+          });
+          applyNotes(localNotes, false);
+        }
       }
     } catch (_) {}
 
-    // 3. Merge: Cloud Releases take top priority, followed by local guides
-    notes = [...cloudNotes, ...localNotes];
+    // 2. Fetch live GitHub Releases in background or on manual sync
+    try {
+      const res = await fetch(GITHUB_RELEASES_API);
+      if (res.ok) {
+        const releases = await res.json();
+        if (Array.isArray(releases) && releases.length > 0) {
+          cloudNotes = releases.map(transformReleaseToNote);
+          localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
 
+          // Merge: Cloud releases take priority, local notes fill missing
+          const noteMap = new Map();
+          cloudNotes.forEach(n => noteMap.set(n.title, n));
+          localNotes.forEach(n => {
+            if (!noteMap.has(n.title)) noteMap.set(n.title, n);
+          });
+          applyNotes(Array.from(noteMap.values()), isManualSync);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('GitHub API live fetch skipped (using cached/notes.json):', e);
+      if (isManualSync) {
+        showToast('ℹ️ 已使用本地最新缓存笔记展示', 'info');
+      }
+    }
+
+    // 3. Fallback to localStorage cache if localNotes was empty
     if (notes.length === 0) {
+      const cached = localStorage.getItem('starwhite_releases_cache');
+      if (cached) {
+        try {
+          const cachedNotes = JSON.parse(cached);
+          if (Array.isArray(cachedNotes) && cachedNotes.length > 0) {
+            applyNotes(cachedNotes, false);
+            return;
+          }
+        } catch (_) {}
+      }
+
       el.notesList.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">📝</div>
@@ -407,30 +423,6 @@
           <p>可以在 GitHub 仓库右侧点击【Releases】->【Draft a new release】快速发布第一篇笔记！</p>
         </div>
       `;
-      return;
-    }
-
-    // Extract unique tags across all notes automatically
-    const tagSet = new Set();
-    let totalFiles = 0;
-    for (const n of notes) {
-      (n.tags || []).forEach(t => {
-        if (t && t.trim()) tagSet.add(t.trim());
-      });
-      totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
-    }
-    allTags = Array.from(tagSet);
-
-    // Update Stats
-    el.statNotesCount.textContent = notes.length;
-    el.statFilesCount.textContent = totalFiles;
-    el.statTagsCount.textContent = allTags.length;
-
-    renderTagsBar();
-    renderNotes();
-
-    if (isManualSync) {
-      showToast(`✅ 已同步最新云端 Release！共 ${notes.length} 篇笔记`, 'success');
     }
   }
 
@@ -513,9 +505,10 @@
           <div class="note-card-images">
             ${displayImgs.map((img, idx) => {
               const imgUrl = resolveAssetUrl(img);
+              const rawUrl = img.url || (img.release ? `${GITHUB_REPO_URL}/releases/download/${encodeURIComponent(img.release)}/${encodeURIComponent(img.name)}` : `files/${img.name}`);
               return `
                 <div class="note-thumb-wrapper preview-img-trigger" data-url="${escapeHTML(imgUrl)}" data-name="${escapeHTML(img.name)}" data-size="${img.size || ''}">
-                  <img src="${escapeHTML(imgUrl)}" alt="${escapeHTML(img.name)}" loading="lazy">
+                  <img src="${escapeHTML(imgUrl)}" data-raw-url="${escapeHTML(rawUrl)}" data-attempt="0" onerror="handleImageError(this)" alt="${escapeHTML(img.name)}" loading="lazy">
                   ${idx === 2 && remaining > 0 ? `<div class="note-thumb-more">+${remaining}张图片</div>` : ''}
                 </div>
               `;
@@ -677,9 +670,10 @@
       el.readerImageCount.textContent = note.images.length;
       el.readerImagesGrid.innerHTML = note.images.map(img => {
         const url = resolveAssetUrl(img);
+        const rawUrl = img.url || (img.release ? `${GITHUB_REPO_URL}/releases/download/${encodeURIComponent(img.release)}/${encodeURIComponent(img.name)}` : `files/${img.name}`);
         return `
           <div class="reader-img-card" data-url="${escapeHTML(url)}" data-name="${escapeHTML(img.name)}" data-size="${img.size || ''}" title="点击放大图片">
-            <img src="${escapeHTML(url)}" alt="${escapeHTML(img.name)}" loading="lazy">
+            <img src="${escapeHTML(url)}" data-raw-url="${escapeHTML(rawUrl)}" data-attempt="0" onerror="handleImageError(this)" alt="${escapeHTML(img.name)}" loading="lazy">
             <div style="font-size:0.75rem; padding:0.25rem 0.5rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; background:var(--bg-surface);">
               ${escapeHTML(img.name)} (${formatBytes(img.size)})
             </div>
@@ -1084,45 +1078,29 @@
       el.cdnTogglePill.onclick = cycleAccelMode;
     }
 
-    // Wi-Fi Sharing Modal
-    const wifiShareBtn = document.getElementById('wifiShareBtn');
-    const wifiShareModal = document.getElementById('wifiShareModal');
-    const closeWifiModalBtn = document.getElementById('closeWifiModalBtn');
-    const copyWifiUrlBtn = document.getElementById('copyWifiUrlBtn');
-    const wifiAddressCode = document.getElementById('wifiAddressCode');
-    const wifiQrCodeImg = document.getElementById('wifiQrCodeImg');
+    // Share Website Modal (GitHub Pages URL)
+    const shareSiteBtn = document.getElementById('shareSiteBtn');
+    const shareSiteModal = document.getElementById('shareSiteModal');
+    const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+    const copySiteUrlBtn = document.getElementById('copySiteUrlBtn');
+    const GITHUB_PAGES_URL = 'https://starwhiteisbusy.github.io/StarWhiteNote/';
 
-    if (wifiShareBtn && wifiShareModal) {
-      wifiShareBtn.onclick = async () => {
-        wifiShareModal.style.display = 'flex';
-        if (isLocalServer) {
-          try {
-            const res = await fetch('/api/network-info');
-            if (res.ok) {
-              const data = await res.json();
-              if (data.lanUrl && wifiAddressCode) {
-                wifiAddressCode.textContent = data.lanUrl;
-                if (wifiQrCodeImg) {
-                  wifiQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(data.lanUrl)}`;
-                }
-              }
-            }
-          } catch (_) {}
-        }
+    if (shareSiteBtn && shareSiteModal) {
+      shareSiteBtn.onclick = () => {
+        shareSiteModal.style.display = 'flex';
       };
     }
 
-    if (closeWifiModalBtn && wifiShareModal) {
-      closeWifiModalBtn.onclick = () => { wifiShareModal.style.display = 'none'; };
+    if (closeShareModalBtn && shareSiteModal) {
+      closeShareModalBtn.onclick = () => { shareSiteModal.style.display = 'none'; };
     }
 
-    if (copyWifiUrlBtn && wifiAddressCode) {
-      copyWifiUrlBtn.onclick = () => {
-        const text = wifiAddressCode.textContent;
-        navigator.clipboard.writeText(text).then(() => {
-          showToast('✅ 链接已复制到剪贴板，可发送到手机微信或QQ！', 'success');
+    if (copySiteUrlBtn) {
+      copySiteUrlBtn.onclick = () => {
+        navigator.clipboard.writeText(GITHUB_PAGES_URL).then(() => {
+          showToast('✅ 网址已复制到剪贴板！可直接发送给好友或微信浏览。', 'success');
         }).catch(() => {
-          prompt('请复制此局域网地址：', text);
+          prompt('请复制本站 GitHub Pages 网址：', GITHUB_PAGES_URL);
         });
       };
     }
@@ -1130,7 +1108,7 @@
     // Close modals on clicking overlay backdrop
     window.onclick = (e) => {
       if (el.noteReaderModal && e.target === el.noteReaderModal) el.noteReaderModal.style.display = 'none';
-      if (wifiShareModal && e.target === wifiShareModal) wifiShareModal.style.display = 'none';
+      if (shareSiteModal && e.target === shareSiteModal) shareSiteModal.style.display = 'none';
       if (el.filePreviewModal && e.target === el.filePreviewModal) {
         resetPreviewFullscreen();
         el.filePreviewModal.style.display = 'none';
