@@ -407,12 +407,96 @@
     }
   }
 
-  async function loadNotesData(isManualSync = false) {
-    if (el.notesList && !isManualSync && notes.length === 0) {
-      el.notesList.innerHTML = '<div class="loading-placeholder">正在加载笔记与思维导图...</div>';
+  const IMG_EXTS_SET = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg']);
+  const DOC_EXTS_SET = new Set(['xmind', 'docx', 'xlsx', 'pptx', 'pdf', 'ora', 'excalidraw', 'zip', 'rar']);
+
+  function parseGitTreeToNotes(tree) {
+    const articlesMap = new Map();
+
+    for (const item of tree) {
+      const p = item.path || '';
+      if (!p.startsWith('notes/') || item.type !== 'blob') continue;
+
+      const parts = p.split('/');
+      if (parts.length < 3) continue;
+
+      const subject = parts[1];
+      const article = parts[2];
+      const filename = parts[parts.length - 1];
+
+      if (filename === '1' || filename === '.gitkeep') continue;
+
+      const ext = filename.split('.').pop().toLowerCase();
+      const key = `${subject}/${article}`;
+
+      if (!articlesMap.has(key)) {
+        articlesMap.set(key, {
+          id: `${encodeURIComponent(subject)}-${encodeURIComponent(article)}`,
+          title: article,
+          tags: [subject],
+          date: new Date().toISOString().split('T')[0],
+          created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+          content: '该专题包含相关板书截图与思维导图资料。',
+          images: [],
+          files: [],
+          mdUrl: null
+        });
+      }
+
+      const note = articlesMap.get(key);
+      const subEnc = encodeURIComponent(subject);
+      const artEnc = encodeURIComponent(article);
+      const fnEnc = encodeURIComponent(filename);
+      const fileUrl = `notes/${subEnc}/${artEnc}/${fnEnc}`;
+      const fileObj = {
+        name: filename,
+        url: fileUrl,
+        size: item.size || 0
+      };
+
+      if (IMG_EXTS_SET.has(ext)) {
+        note.images.push(fileObj);
+      } else if (DOC_EXTS_SET.has(ext)) {
+        note.files.push(fileObj);
+      } else if (ext === 'md' || ext === 'markdown') {
+        note.mdUrl = fileUrl;
+      }
     }
 
-    // Read notes.json directly from repository root
+    return Array.from(articlesMap.values());
+  }
+
+  async function loadMarkdownForNotes(notesList) {
+    for (const n of notesList) {
+      if (n.mdUrl) {
+        try {
+          const res = await fetch(`${n.mdUrl}?_t=${Date.now()}`);
+          if (res.ok) {
+            const raw = await res.text();
+            let clean = raw.trim().replace(/^#+\s*(\r?\n)*/, '');
+            if (clean) {
+              n.content = clean;
+              if (el.readerTitle && el.readerTitle.textContent === n.title && el.readerContent) {
+                el.readerContent.innerHTML = renderMarkdown(clean);
+              }
+              const card = document.querySelector(`.note-card[data-id="${n.id}"] .note-content-preview`);
+              if (card) {
+                card.innerHTML = renderMarkdown(clean);
+              }
+            }
+          }
+        } catch (_) {}
+      }
+    }
+  }
+
+  async function loadNotesData(isManualSync = false) {
+    if (el.notesList && !isManualSync && notes.length === 0) {
+      el.notesList.innerHTML = '<div class="loading-placeholder">正在自动扫描 GitHub 目录检测新笔记...</div>';
+    }
+
+    // 1. 优先读取静态 notes.json（速度最快，秒开）
+    let loadedFromStatic = false;
     try {
       const res = await fetch(`notes.json?_t=${Date.now()}`);
       if (res.ok) {
@@ -425,14 +509,47 @@
             n.files = Array.isArray(n.files) ? n.files : (Array.isArray(n.attachments) ? n.attachments : []);
           });
           applyNotes(localNotes, isManualSync);
-          return;
+          loadedFromStatic = true;
         }
       }
     } catch (e) {
       console.warn('Failed to load notes.json:', e);
-      if (isManualSync) {
-        showToast('❌ 刷新失败，请检查网络连接', 'error');
+    }
+
+    // 2. 无论静态是否成功，均实时调用 GitHub Tree API 自动检测是否有新文件夹上传！
+    try {
+      const treeRes = await fetch('https://api.github.com/repos/StarWhiteIsBusy/StarWhiteNote/git/trees/main?recursive=1');
+      if (treeRes.ok) {
+        const treeData = await treeRes.json();
+        if (Array.isArray(treeData.tree)) {
+          const liveNotes = parseGitTreeToNotes(treeData.tree);
+          if (liveNotes.length > 0) {
+            // 合并已有 notes.json 中的真实时间戳与 Markdown 正文
+            const oldMap = new Map((notes || []).map(n => [n.title, n]));
+            liveNotes.forEach(ln => {
+              const old = oldMap.get(ln.title);
+              if (old) {
+                ln.created_at = old.created_at || ln.created_at;
+                ln.date = old.date || ln.date;
+                if (old.content && old.content !== '该专题包含相关板书截图与思维导图资料。') {
+                  ln.content = old.content;
+                }
+              }
+            });
+
+            // 检查是否有新目录增加或变动
+            const liveTitles = liveNotes.map(n => n.title).sort().join('|');
+            const currentTitles = notes.map(n => n.title).sort().join('|');
+            if (liveTitles !== currentTitles || !loadedFromStatic) {
+              applyNotes(liveNotes, isManualSync);
+              loadMarkdownForNotes(liveNotes);
+              return;
+            }
+          }
+        }
       }
+    } catch (err) {
+      console.warn('GitHub Live Trees API unavailable:', err);
     }
 
     if (notes.length === 0) {
