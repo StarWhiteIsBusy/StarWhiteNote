@@ -414,13 +414,6 @@
       `;
     }
   }
-          <div class="empty-icon">📝</div>
-          <h3>尚未发布任何笔记或思维导图</h3>
-          <p>可以在 GitHub 仓库右侧点击【Releases】->【Draft a new release】快速发布第一篇笔记！</p>
-        </div>
-      `;
-    }
-  }
 
   // --- Dynamic Tags Filter Bar ---
   function renderTagsBar() {
