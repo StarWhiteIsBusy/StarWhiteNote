@@ -2,6 +2,7 @@
 import json
 import urllib.parse
 import re
+import subprocess
 from datetime import datetime
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -13,13 +14,51 @@ PUBLIC_FILE = os.path.join(ROOT_DIR, "public", "notes.json")
 IMG_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'}
 DOC_EXTS = {'.xmind', '.docx', '.xlsx', '.pptx', '.pdf', '.ora', '.excalidraw', '.zip', '.rar'}
 
+# 历史笔记官方创建时间锚点（精确到秒，保证绝对真实的创建先后顺序）
+HISTORICAL_CREATED_TIMES = {
+    '基本不等式及其应用': '2026-11-12 17:33:52',
+    '相遇追及': '2026-11-12 17:33:53',
+    '绝对值不等式与函数': '2026-11-14 11:24:07',
+    '二次函数与一元二次方程，不等式': '2026-11-14 11:29:58',
+    '导数-曲线的切线与公切线': '2026-11-14 12:06:20',
+    '阅读理解-推理判断题（上）': '2026-11-14 15:45:11',
+    '阅读理解推断题（下）': '2026-11-14 19:14:58',
+}
+
+def get_article_creation_time(art_path, article_name):
+    if article_name in HISTORICAL_CREATED_TIMES:
+        return HISTORICAL_CREATED_TIMES[article_name]
+    
+    # 新上传的笔记通过 git 历史回溯初次提交时间
+    try:
+        rel_path = os.path.relpath(art_path, ROOT_DIR).replace('\\', '/')
+        res = subprocess.run(
+            ['git', 'log', '--format=%ad', '--date=iso', '--', rel_path],
+            cwd=ROOT_DIR, capture_output=True, text=True
+        )
+        lines = [l.strip() for l in res.stdout.splitlines() if l.strip()]
+        if lines:
+            earliest = lines[-1]
+            # parse iso date
+            dt = earliest[:19]
+            return dt.replace('T', ' ')
+    except Exception:
+        pass
+    
+    # 默认回退至文件元数据创建时间
+    try:
+        ctime = os.path.getctime(art_path)
+        return datetime.fromtimestamp(ctime).strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 def strip_duplicate_heading(title, content):
     if not content:
         return "该专题包含相关板书截图与思维导图资料。"
     lines = content.strip().splitlines()
     if lines:
         first = lines[0].strip()
-        # If first line is empty heading like '#' or '##'
+        # 过滤空标题行如 '#'
         if re.match(r'^#+\s*$', first):
             lines = lines[1:]
             while lines and not lines[0].strip():
@@ -54,12 +93,12 @@ def run():
         print(f"Directory not found: {NOTES_DIR}")
         return
 
-    subject_folders = [f for f in os.listdir(NOTES_DIR) if os.path.isdir(os.path.join(NOTES_DIR, f))]
+    subject_folders = [f for f in sorted(os.listdir(NOTES_DIR)) if os.path.isdir(os.path.join(NOTES_DIR, f))]
     notes_list = []
 
     for subject in subject_folders:
         sub_path = os.path.join(NOTES_DIR, subject)
-        article_folders = [f for f in os.listdir(sub_path) if os.path.isdir(os.path.join(sub_path, f))]
+        article_folders = [f for f in sorted(os.listdir(sub_path)) if os.path.isdir(os.path.join(sub_path, f))]
 
         for article in article_folders:
             art_path = os.path.join(sub_path, article)
@@ -68,7 +107,7 @@ def run():
             raw_content = ""
             md_files = [f for f in files_in_art if f.lower().endswith('.md')]
             
-            # Read markdown content directly as main article text
+            # 读取 Markdown 正文
             if md_files:
                 primary_md = md_files[0]
                 try:
@@ -81,16 +120,11 @@ def run():
 
             images = []
             files = []
-            latest_mtime = os.path.getmtime(art_path)
 
             for fname in files_in_art:
                 fpath = os.path.join(art_path, fname)
                 if not os.path.isfile(fpath):
                     continue
-                
-                mtime = os.path.getmtime(fpath)
-                if mtime > latest_mtime:
-                    latest_mtime = mtime
 
                 ext = os.path.splitext(fname)[1].lower()
                 stat = os.stat(fpath)
@@ -110,24 +144,23 @@ def run():
                     images.append(item)
                 elif ext in DOC_EXTS:
                     files.append(item)
-                elif ext == '.md':
-                    # Per user instruction: markdown is rendered directly as article text
-                    pass
 
-            date_str = datetime.fromtimestamp(latest_mtime).strftime("%Y-%m-%d")
+            created_time_str = get_article_creation_time(art_path, article)
+            date_str = created_time_str.split()[0]
 
             notes_list.append({
                 "id": f"{urllib.parse.quote(subject)}-{urllib.parse.quote(article)}",
                 "title": article,
                 "tags": [subject],
                 "date": date_str,
+                "created_at": created_time_str,
                 "content": content,
                 "images": images,
                 "files": files
             })
 
-    # Sort: newest first
-    notes_list.sort(key=lambda x: x.get("date", ""), reverse=True)
+    # 按创建时间先后顺序正向排序 (从早到晚，保证上集在前，下集在后)
+    notes_list.sort(key=lambda x: x.get("created_at", x.get("date", "")))
 
     json_str = json.dumps(notes_list, ensure_ascii=False, indent=2)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as fp:
@@ -143,10 +176,10 @@ def run():
         with open(PUBLIC_FILE, "w", encoding="utf-8") as fp:
             fp.write(json_str)
 
-    print(f"Successfully generated notes.json with {len(notes_list)} articles from subfolders!")
-    for n in notes_list:
-        md_status = "MD正文已载入" if len(n['content']) > 100 else "无独立MD"
-        print(f" - [{','.join(n['tags'])}] {n['title']} ({md_status}, 字数:{len(n['content'])}, 图片:{len(n['images'])}, 附件:{len(n['files'])})")
+    print(f"Successfully generated notes.json with {len(notes_list)} articles in chronological order!")
+    for idx, n in enumerate(notes_list, 1):
+        md_status = "MD正文" if len(n['content']) > 100 else "无独立MD"
+        print(f" {idx}. [{','.join(n['tags'])}] {n['title']} (创建时间: {n['created_at']}, {md_status}, 图片:{len(n['images'])}, 附件:{len(n['files'])})")
 
 if __name__ == "__main__":
     run()

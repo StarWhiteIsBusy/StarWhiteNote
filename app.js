@@ -57,13 +57,6 @@
 
   // --- DOM Elements ---
   const el = {
-    // Nav tabs
-    navTabs: document.getElementById('navTabs'),
-    tabPanes: {
-      notes: document.getElementById('tab-notes'),
-      guide: document.getElementById('tab-guide')
-    },
-
     // Search & Theme
     globalSearch: document.getElementById('globalSearch'),
     themeToggleBtn: document.getElementById('themeToggleBtn'),
@@ -353,16 +346,27 @@
 
   function applyNotes(combinedList, isFromSync = false) {
     if (!Array.isArray(combinedList) || combinedList.length === 0) return;
-    notes = combinedList;
-    const tagSet = new Set();
+
+    // 按创建时间先后顺序排序（从早到晚，保证上集在前、下集在后）
+    notes = combinedList.slice().sort((a, b) => (a.created_at || a.date || '').localeCompare(b.created_at || b.date || ''));
+
+    // 标签页按对应笔记的最早创建时间顺序排序
+    const tagFirstCreated = new Map();
+    for (const n of notes) {
+      const created = n.created_at || n.date || '';
+      (n.tags || []).forEach(t => {
+        const tag = t ? t.trim() : '';
+        if (tag && !tagFirstCreated.has(tag)) {
+          tagFirstCreated.set(tag, created);
+        }
+      });
+    }
+    allTags = Array.from(tagFirstCreated.keys());
+
     let totalFiles = 0;
     for (const n of notes) {
-      (n.tags || []).forEach(t => {
-        if (t && t.trim()) tagSet.add(t.trim());
-      });
       totalFiles += (n.images ? n.images.length : 0) + (n.files ? n.files.length : 0);
     }
-    allTags = Array.from(tagSet);
 
     el.statNotesCount.textContent = notes.length;
     el.statFilesCount.textContent = totalFiles;
@@ -400,7 +404,7 @@
     } catch (e) {
       console.warn('Failed to load notes.json:', e);
       if (isManualSync) {
-        showToast('❌ 刷新失败，请检查网络或本地文件', 'error');
+        showToast('❌ 刷新失败，请检查网络连接', 'error');
       }
     }
 
@@ -1096,14 +1100,14 @@
           <h3 style="margin-bottom:0.5rem; font-size:1.25rem; color:var(--text-main); font-weight:600;">${escapeHTML(fileName)}</h3>
           <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.75rem; line-height:1.6;">
             PowerPoint 幻灯片演示文稿 (${fileSize ? formatBytes(fileSize) : 'PPT课件'})<br>
-            可通过本地局域网高速下载原件，支持在 PowerPoint 或 WPS 中完整放映与编辑。
+            支持全球 CDN 高速下载原件，可在 PowerPoint 或 WPS 中完整放映与编辑。
           </p>
           <a class="btn btn-primary" href="${fileUrl}" download="${fileName}" style="padding:0.75rem 2rem; font-size:1rem; display:inline-flex; align-items:center; gap:0.5rem;">
             <span>⬇️</span> 立即下载 PPT 演示文稿
           </a>
         </div>
       `;
-      el.previewHintText.textContent = 'PowerPoint 演示文稿（支持全速下载到本地放映）';
+      el.previewHintText.textContent = 'PowerPoint 演示文稿（支持全速下载查看）';
       return;
     }
 
@@ -1131,7 +1135,7 @@
       <div style="text-align:center; padding:3rem 1.5rem; color:#fff;">
         <div style="font-size:3rem; margin-bottom:1rem;">📁</div>
         <h3>该格式不支持在线预览</h3>
-        <p style="margin-top:0.5rem; opacity:0.85;">请直接下载后使用本地对应软件打开查看</p>
+        <p style="margin-top:0.5rem; opacity:0.85;">请直接下载后使用对应软件打开查看</p>
         <a class="btn btn-primary" href="${fileUrl}" download="${fileName}" style="margin-top:1.5rem;">⬇️ 立即下载原文件</a>
       </div>
     `;
@@ -1175,19 +1179,6 @@
     document.body.removeChild(textarea);
   }
 
-  // --- Tab Navigation ---
-  function switchTab(tabName) {
-    activeTab = tabName;
-    document.querySelectorAll('.nav-tab').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tab === tabName);
-    });
-    Object.keys(el.tabPanes).forEach(paneKey => {
-      if (el.tabPanes[paneKey]) {
-        el.tabPanes[paneKey].style.display = (paneKey === tabName) ? 'block' : 'none';
-      }
-    });
-  }
-
   // --- Theme Toggle ---
   function initTheme() {
     const savedTheme = localStorage.getItem('starwhite_theme') || 'theme-light';
@@ -1206,13 +1197,6 @@
 
   // --- Initialize Events ---
   function initEvents() {
-    // Nav tabs
-    if (el.navTabs) {
-      el.navTabs.querySelectorAll('.nav-tab').forEach(btn => {
-        btn.onclick = () => switchTab(btn.dataset.tab);
-      });
-    }
-
     // Global Search
     if (el.globalSearch) {
       el.globalSearch.oninput = (e) => {
