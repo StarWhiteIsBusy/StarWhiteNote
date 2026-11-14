@@ -1,5 +1,31 @@
 [
   {
+    "id": "rel-444747719",
+    "title": "绝对值不等式与函数",
+    "tags": ["数学"],
+    "date": "2026-11-14",
+    "content": "高中数学：绝对值不等式与函数性质、图像变换及核心题型考点总结。",
+    "images": [
+      {
+        "name": "default.png",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E6%95%B0%E5%AD%A6-2/default.png",
+        "size": 256548
+      },
+      {
+        "name": "MAP.png",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E6%95%B0%E5%AD%A6-2/MAP.png",
+        "size": 312000
+      }
+    ],
+    "files": [
+      {
+        "name": "default.xmind",
+        "url": "https://github.com/StarWhiteIsBusy/StarWhiteNote/releases/download/%E6%95%B0%E5%AD%A6-2/default.xmind",
+        "size": 284000
+      }
+    ]
+  },
+  {
     "id": "rel-444166264",
     "title": "相遇追及",
     "tags": ["物理"],
