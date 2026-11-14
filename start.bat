@@ -1,49 +1,47 @@
 @echo off
-chcp 65001 >nul
-title StarWhiteNote - ä¸ªäººç¬”è®°ä¸Žæ–‡ä»¶å…±äº«ç«™
 cd /d "%~dp0"
+title StarWhiteNote - ±¾µØ±Ê¼ÇÓë×ÊÁÏÕ¾
 
-echo ==========================================================
-echo        â­ StarWhiteNote - ä¸ªäººç¬”è®°ä¸Žæ–‡ä»¶å…±äº«ç«™
-echo ==========================================================
-echo æ­£åœ¨æ£€æŸ¥è¿è¡ŒçŽ¯å¢ƒå¹¶å¯åŠ¨æœåŠ¡...
+echo ================================================================
+echo           StarWhiteNote - ±¾µØ±Ê¼ÇÓëÎÄ¼þ¹²ÏíÕ¾
+echo ================================================================
+echo.
 
-set NODE_CMD=
+set "NODE_CMD="
 
-:: 1. æ£€æŸ¥çŽ¯å¢ƒå˜é‡ä¸­çš„ agy-node
-where agy-node >nul 2>nul
-if %errorlevel% equ 0 (
-    set "NODE_CMD=agy-node"
-    goto RUN
+:: 1. ÓÅÏÈÊ¹ÓÃ Antigravity ÄÚÖÃµÄ¸ßÐÔÄÜ Node »·¾³ (v24)
+if exist "%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe" (
+    set "ELECTRON_RUN_AS_NODE=1"
+    set "NODE_CMD=%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe"
+    goto START_SERVER
 )
 
-:: 2. æ£€æŸ¥çŽ¯å¢ƒå˜é‡ä¸­çš„ node
+:: 2. ¼ì²éÏµÍ³È«¾Ö node
 where node >nul 2>nul
 if %errorlevel% equ 0 (
     set "NODE_CMD=node"
-    goto RUN
+    goto START_SERVER
 )
 
-:: 3. æ£€æŸ¥ Antigravity å†…ç½®çŽ¯å¢ƒ
-if exist "%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe" (
-    set ELECTRON_RUN_AS_NODE=1
-    set "NODE_CMD=%LOCALAPPDATA%\Programs\antigravity\Antigravity.exe"
-    goto RUN
+:: 3. ¼ì²éÏµÍ³È«¾Ö python ×÷Îª±¸Ñ¡
+where python >nul 2>nul
+if %errorlevel% equ 0 (
+    echo [ÌáÊ¾] Î´¼ì²âµ½ Node »·¾³£¬ÕýÔÚÍ¨¹ý Python Æô¶¯·þÎñ...
+    start "" "http://localhost:3000"
+    python -m http.server 3000
+    goto END
 )
 
-:: 4. æ£€æŸ¥ç”¨æˆ·æ¼«æ¸¸ç›®å½•ä¸­çš„ agy-node.cmd
-if exist "%APPDATA%\Antigravity\bin\agy-node.cmd" (
-    set "NODE_CMD=%APPDATA%\Antigravity\bin\agy-node.cmd"
-    goto RUN
-)
-
-echo [é”™è¯¯] æœªæ‰¾åˆ° Node è¿è¡ŒçŽ¯å¢ƒã€‚è¯·å®‰è£… Node.js æˆ–ç¡®ä¿ Antigravity çŽ¯å¢ƒæ­£å¸¸ã€‚
+echo [´íÎó] Î´¼ì²âµ½¿ÉÓÃµÄÔËÐÐ»·¾³¡£
 pause
 exit /b 1
 
-:RUN
-echo å¯åŠ¨æœåŠ¡å¼•æ“Ž: %NODE_CMD%
-start "" cmd /c "timeout /t 2 /nobreak >nul && start http://localhost:3000"
-%NODE_CMD% server.js
+:START_SERVER
+echo ÕýÔÚÆô¶¯±¾µØ¸ßËÙ·þÎñ...
+echo ÉÔºó½«×Ô¶¯ÔÚä¯ÀÀÆ÷ÖÐ´ò¿ª±¾Õ¾Ò³Ãæ...
+echo.
+start "" cmd /c "timeout /t 1 /nobreak >nul && start http://localhost:3000"
+"%NODE_CMD%" server.js
 
+:END
 pause

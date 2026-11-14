@@ -11,9 +11,10 @@ const ROOT_DIR = __dirname;
 const PUBLIC_DIR = path.join(ROOT_DIR, 'public');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const UPLOADS_DIR = path.join(ROOT_DIR, 'uploads');
+const CACHE_ASSETS_DIR = path.join(DATA_DIR, 'cache_assets');
 
 // Ensure directories exist
-for (const dir of [PUBLIC_DIR, DATA_DIR, UPLOADS_DIR]) {
+for (const dir of [PUBLIC_DIR, DATA_DIR, UPLOADS_DIR, CACHE_ASSETS_DIR]) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -304,18 +305,129 @@ function parseBody(req) {
   });
 }
 
-// Get network interfaces for local IP
+// Get network interfaces for local IP & identify LAN Wi-Fi IP
 function getLocalIPs() {
   const interfaces = os.networkInterfaces();
   const results = [];
+  let primaryLAN = null;
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
       if (iface.family === 'IPv4' && !iface.internal) {
-        results.push({ name, address: iface.address });
+        const lowerName = name.toLowerCase();
+        const isVirtual = lowerName.includes('clash') ||
+                          lowerName.includes('tap') ||
+                          lowerName.includes('vEthernet') ||
+                          lowerName.includes('virtual') ||
+                          iface.address.startsWith('198.18.') ||
+                          iface.address.startsWith('169.254.');
+        results.push({ name, address: iface.address, isVirtual });
+        if (!primaryLAN && !isVirtual && (iface.address.startsWith('192.168.') || iface.address.startsWith('10.') || iface.address.startsWith('172.'))) {
+          primaryLAN = iface.address;
+        }
       }
     }
   }
-  return results;
+  return {
+    list: results,
+    primaryLAN: primaryLAN || (results.length > 0 ? results[0].address : '127.0.0.1')
+  };
+}
+
+// GitHub Releases in-memory cache & proxy for domestic high-speed loading
+let cachedReleases = null;
+let lastReleasesFetchTime = 0;
+const RELEASES_CACHE_TTL = 60 * 1000; // 60 seconds cache
+const RELEASES_DISK_FILE = path.join(DATA_DIR, 'releases_cache.json');
+
+// Helper: HTTP request following redirects (essential for GitHub Releases downloads)
+function fetchWithRedirect(url, headers = {}, maxRedirects = 5) {
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    const http = require('http');
+    const client = url.startsWith('https:') ? https : http;
+
+    const req = client.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        ...headers
+      },
+      timeout: 12000
+    }, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && maxRedirects > 0) {
+        let redirectUrl = res.headers.location;
+        if (redirectUrl.startsWith('/')) {
+          const u = new URL(url);
+          redirectUrl = `${u.protocol}//${u.host}${redirectUrl}`;
+        }
+        return resolve(fetchWithRedirect(redirectUrl, headers, maxRedirects - 1));
+      }
+      resolve(res);
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('请求超时'));
+    });
+  });
+}
+
+async function handleReleasesProxy(req, res, parsedUrl) {
+  const isForce = parsedUrl && parsedUrl.searchParams.get('force') === '1';
+  const now = Date.now();
+
+  // If not forced and memory cache is fresh
+  if (!isForce && cachedReleases && (now - lastReleasesFetchTime < RELEASES_CACHE_TTL)) {
+    return sendJSON(res, 200, cachedReleases);
+  }
+
+  // If memory cache empty, check disk cache
+  if (!isForce && !cachedReleases && fs.existsSync(RELEASES_DISK_FILE)) {
+    try {
+      const diskData = JSON.parse(fs.readFileSync(RELEASES_DISK_FILE, 'utf8'));
+      if (Array.isArray(diskData) && diskData.length > 0) {
+        cachedReleases = diskData;
+        lastReleasesFetchTime = now;
+        return sendJSON(res, 200, cachedReleases);
+      }
+    } catch (_) {}
+  }
+
+  // Fetch live from GitHub Releases API
+  try {
+    const remoteRes = await fetchWithRedirect('https://api.github.com/repos/StarWhiteIsBusy/StarWhiteNote/releases', {
+      'Accept': 'application/vnd.github.v3+json'
+    });
+    let rawData = '';
+    remoteRes.on('data', chunk => { rawData += chunk; });
+    remoteRes.on('end', () => {
+      try {
+        if (remoteRes.statusCode === 200) {
+          const releases = JSON.parse(rawData);
+          cachedReleases = releases;
+          lastReleasesFetchTime = Date.now();
+          fs.writeFileSync(RELEASES_DISK_FILE, JSON.stringify(releases, null, 2), 'utf8');
+          return sendJSON(res, 200, releases);
+        } else {
+          if (cachedReleases) return sendJSON(res, 200, cachedReleases);
+          return sendJSON(res, remoteRes.statusCode, { error: 'GitHub API status: ' + remoteRes.statusCode });
+        }
+      } catch (err) {
+        if (cachedReleases) return sendJSON(res, 200, cachedReleases);
+        return sendJSON(res, 500, { error: '解析 Releases 失败' });
+      }
+    });
+  } catch (err) {
+    console.warn('GitHub Releases 拉取失败，读取本地备份:', err.message);
+    if (cachedReleases) return sendJSON(res, 200, cachedReleases);
+    if (fs.existsSync(RELEASES_DISK_FILE)) {
+      try {
+        const diskData = JSON.parse(fs.readFileSync(RELEASES_DISK_FILE, 'utf8'));
+        return sendJSON(res, 200, diskData);
+      } catch (_) {}
+    }
+    return sendJSON(res, 200, []);
+  }
 }
 
 // HTTP Server
@@ -396,13 +508,69 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, 200, { success: true });
   }
 
-  // 4. Network Info & Server Info (for easy sharing)
+  // 4. Network Info & Server Info (for easy Wi-Fi phone sharing)
   if (pathname === '/api/network-info' && req.method === 'GET') {
+    const netInfo = getLocalIPs();
     return sendJSON(res, 200, {
       port: PORT,
-      localIPs: getLocalIPs(),
+      localIPs: netInfo.list,
+      primaryLAN: netInfo.primaryLAN,
+      lanUrl: `http://${netInfo.primaryLAN}:${PORT}`,
+      localUrl: `http://localhost:${PORT}`,
       hostname: os.hostname()
     });
+  }
+
+  // 4.1 GitHub Releases proxy & cache endpoint
+  if (pathname === '/api/releases' && req.method === 'GET') {
+    handleReleasesProxy(req, res, parsedUrl);
+    return;
+  }
+
+  // 4.2 High-Speed Release Asset Proxy & Local Disk Cache (0ms LAN delivery)
+  if (pathname === '/api/asset' && req.method === 'GET') {
+    const rawUrl = parsedUrl.searchParams.get('url');
+    if (!rawUrl) {
+      return sendJSON(res, 400, { error: '缺少 url 参数' });
+    }
+
+    try {
+      const parsedTarget = new URL(rawUrl);
+      const hash = crypto.createHash('md5').update(rawUrl).digest('hex');
+      let ext = path.extname(parsedTarget.pathname) || '';
+      if (!ext || ext.length > 8) ext = '.bin';
+      const cachedFilePath = path.join(CACHE_ASSETS_DIR, `${hash}${ext}`);
+
+      // 1. If already on local SSD disk, stream immediately (0ms!)
+      if (fs.existsSync(cachedFilePath) && fs.statSync(cachedFilePath).size > 0) {
+        const mime = MIME_TYPES[ext.toLowerCase()] || 'application/octet-stream';
+        res.writeHead(200, {
+          'Content-Type': mime,
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        });
+        return fs.createReadStream(cachedFilePath).pipe(res);
+      }
+
+      // 2. Fetch from GitHub upstream with redirect followed
+      const remoteRes = await fetchWithRedirect(rawUrl);
+      if (remoteRes.statusCode === 200) {
+        const mime = remoteRes.headers['content-type'] || MIME_TYPES[ext.toLowerCase()] || 'application/octet-stream';
+        res.writeHead(200, {
+          'Content-Type': mime,
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        });
+
+        const fileStream = fs.createWriteStream(cachedFilePath);
+        remoteRes.pipe(fileStream);
+        remoteRes.pipe(res);
+        return;
+      } else {
+        return sendJSON(res, remoteRes.statusCode, { error: 'Upstream HTTP ' + remoteRes.statusCode });
+      }
+    } catch (err) {
+      console.warn('Asset proxy error:', err.message);
+      return sendJSON(res, 502, { error: '加载资源失败: ' + err.message });
+    }
   }
 
   // Public open access: No login required (Pure static & open sharing mode)
@@ -937,9 +1105,14 @@ if (pathname === '/api/stats' && req.method === 'GET') {
 
 // Start listening
 server.listen(PORT, HOST, () => {
-  console.log('==================================================');
-  console.log(`🚀 StarWhiteNote (纯静态 / 免登录版) 服务已成功运行！`);
-  console.log(`- 本地访问地址: http://localhost:${PORT}`);
-  console.log(`- 部署提示: 纯静态无后端，可直接推送到 GitHub Pages 免费运行`);
-  console.log('==================================================');
+  const netInfo = getLocalIPs();
+  console.log('===============================================================');
+  console.log('       ⭐ StarWhiteNote 个人笔记与资料站 已成功启动！');
+  console.log('===============================================================');
+  console.log(`💻 电脑本机浏览器访问:   http://localhost:${PORT}`);
+  console.log(`📱 手机/局域网Wi-Fi访问: http://${netInfo.primaryLAN}:${PORT}`);
+  console.log('');
+  console.log(`💡 说明: 只要手机连接同一个 Wi-Fi，打开手机自带浏览器输入上面的`);
+  console.log(`        http://${netInfo.primaryLAN}:${PORT} 即可直接浏览与下载笔记！`);
+  console.log('===============================================================');
 });

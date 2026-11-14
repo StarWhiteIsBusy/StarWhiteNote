@@ -8,7 +8,23 @@
   let activeTab = 'notes';
   let activeTag = 'all';
   let searchQuery = '';
-  let cdnEnabled = localStorage.getItem('starwhite_cdn_enabled') !== 'false'; // 默认开启 CDN 加速
+
+  // Check if running on local server (Node.js server.js)
+  const isLocalServer = (
+    window.location.protocol === 'http:' &&
+    (window.location.hostname === 'localhost' ||
+     window.location.hostname === '127.0.0.1' ||
+     window.location.hostname.startsWith('192.168.') ||
+     window.location.hostname.startsWith('10.') ||
+     window.location.hostname.startsWith('172.'))
+  );
+
+  // Multi-route acceleration modes:
+  // 1. 'local': 本地高速专线 (通过 server.js 缓存与局域网千兆分发，0ms 秒开)
+  // 2. 'mirror': 国内高速镜像 (GHProxy 镜像源，免翻墙，国内直达)
+  // 3. 'jsdelivr': 全球 Anycast CDN (jsDelivr)
+  // 4. 'direct': GitHub 官方直连 (无加速)
+  let accelMode = localStorage.getItem('starwhite_accel_mode') || (isLocalServer ? 'local' : 'mirror');
 
   // --- DOM Elements ---
   const el = {
@@ -82,49 +98,103 @@
     }, 3500);
   }
 
-  // --- Helpers ---
+  // --- Acceleration Routes & Mirror Sources ---
+  const ACCEL_MODES = [
+    {
+      id: 'local',
+      name: '⚡ 本地极速专线 (0ms 局域网缓存)',
+      short: '⚡ 本地极速专线',
+      desc: '通过本机内置高速代理与磁盘缓存，手机电脑同Wi-Fi千兆秒开！',
+      color: '#10b981'
+    },
+    {
+      id: 'mirror',
+      name: '🚀 国内极速镜像 (GHProxy 镜像源)',
+      short: '🚀 国内极速镜像',
+      desc: '专为国内网络优化，通过国内镜像节点加速下载，免翻墙！',
+      color: '#06b6d4'
+    },
+    {
+      id: 'jsdelivr',
+      name: '🌐 全球 Anycast CDN (jsDelivr)',
+      short: '🌐 全球 CDN',
+      desc: '全球高速 Anycast 节点分发',
+      color: '#3b82f6'
+    },
+    {
+      id: 'direct',
+      name: '🔗 GitHub 官方源 (直连模式)',
+      short: '🔗 官方直连',
+      desc: '直接连接 GitHub 官方原始服务器 (需要科学上网环境)',
+      color: '#94a3b8'
+    }
+  ];
+
   function updateCdnUI() {
     if (!el.cdnBadgeText) return;
     const dot = document.querySelector('.cdn-status-dot');
-    if (cdnEnabled) {
-      el.cdnBadgeText.textContent = '⚡ GitHub Pages 全球加速 (默认开启)';
-      if (dot) dot.style.backgroundColor = '#10b981';
-    } else {
-      el.cdnBadgeText.textContent = '🌐 GitHub 官方源 (直连模式)';
-      if (dot) dot.style.backgroundColor = '#94a3b8';
+    const cur = ACCEL_MODES.find(m => m.id === accelMode) || ACCEL_MODES[0];
+    el.cdnBadgeText.textContent = cur.short;
+    if (dot) dot.style.backgroundColor = cur.color;
+    if (el.cdnTogglePill) {
+      el.cdnTogglePill.title = `当前加速线路: ${cur.name}\n${cur.desc}\n(点击切换线路)`;
     }
   }
 
-  function getAcceleratedUrl(url) {
-    if (!url) return '';
-    if (!cdnEnabled) return url;
-    // On GitHub Pages or production, accelerate files via jsDelivr global fast CDN
-    if (window.location.hostname.endsWith('github.io') || (window.location.protocol === 'https:' && !window.location.hostname.includes('localhost'))) {
-      if (url.startsWith('files/')) {
-        const cleanPath = url.replace(/^files\//, '');
-        return `https://cdn.jsdelivr.net/gh/StarWhiteIsBusy/StarWhiteNote@main/files/${cleanPath}`;
-      }
-    }
-    return url;
+  function cycleAccelMode() {
+    const curIdx = ACCEL_MODES.findIndex(m => m.id === accelMode);
+    const nextIdx = (curIdx + 1) % ACCEL_MODES.length;
+    accelMode = ACCEL_MODES[nextIdx].id;
+    localStorage.setItem('starwhite_accel_mode', accelMode);
+    updateCdnUI();
+    showToast(`已切换线路: ${ACCEL_MODES[nextIdx].name}`);
+    renderNotes();
   }
 
   const GITHUB_REPO_URL = 'https://github.com/StarWhiteIsBusy/StarWhiteNote';
 
   function resolveAssetUrl(item) {
     if (!item) return '';
-    // 1. If explicit URL provided
+
+    let rawUrl = '';
     if (item.url) {
-      if (item.url.startsWith('http://') || item.url.startsWith('https://')) {
-        return item.url;
+      rawUrl = item.url;
+    } else if (item.release) {
+      rawUrl = `${GITHUB_REPO_URL}/releases/download/${encodeURIComponent(item.release)}/${encodeURIComponent(item.name)}`;
+    } else {
+      rawUrl = `files/${item.name}`;
+    }
+
+    // 1. Relative local path (files/...)
+    if (rawUrl.startsWith('files/')) {
+      if (isLocalServer) return rawUrl;
+      if (accelMode === 'mirror') {
+        return `https://ghproxy.net/https://raw.githubusercontent.com/StarWhiteIsBusy/StarWhiteNote/main/${rawUrl}`;
       }
-      return getAcceleratedUrl(item.url);
+      if (accelMode === 'jsdelivr') {
+        const cleanPath = rawUrl.replace(/^files\//, '');
+        return `https://cdn.jsdelivr.net/gh/StarWhiteIsBusy/StarWhiteNote@main/files/${cleanPath}`;
+      }
+      return rawUrl;
     }
-    // 2. If GitHub Release tag specified (e.g. release: "assets" or "v1.0")
-    if (item.release) {
-      return `${GITHUB_REPO_URL}/releases/download/${item.release}/${encodeURIComponent(item.name)}`;
+
+    // 2. Full HTTP/HTTPS URLs (GitHub Releases downloads, etc.)
+    if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+      // Local Server Proxy Mode (Highest speed, local disk cache, instant 0ms)
+      if (accelMode === 'local' && isLocalServer) {
+        return `/api/asset?url=${encodeURIComponent(rawUrl)}`;
+      }
+
+      // Domestic Mirror Source (GHProxy)
+      if (accelMode === 'mirror') {
+        return `https://ghproxy.net/${rawUrl}`;
+      }
+
+      // jsDelivr or Direct
+      return rawUrl;
     }
-    // 3. Fallback to files/ directory
-    return getAcceleratedUrl(`files/${item.name}`);
+
+    return rawUrl;
   }
 
   function formatBytes(bytes) {
@@ -190,6 +260,22 @@
     }
   }
 
+  // Allowed preview types (严格限制: 仅图片、文档包括 docx/pptx/xlsx/pdf、以及 md 文件支持在线预览)
+  // 非图片、非文档、非 md 文件 (如 xmind, ora, excalidraw, zip 等) 一律不提供预览，直接下载
+  function isPreviewableFile(filename) {
+    if (!filename) return false;
+    const ext = filename.split('.').pop().toLowerCase();
+    const allowed = [
+      // 1. 图片
+      'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',
+      // 2. 文档
+      'docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'csv', 'pdf',
+      // 3. MD 文件
+      'md', 'markdown'
+    ];
+    return allowed.includes(ext);
+  }
+
   function renderMarkdown(md) {
     if (!md) return '';
     let html = escapeHTML(md)
@@ -249,23 +335,47 @@
 
   async function loadNotesData(isManualSync = false) {
     if (el.notesList && !isManualSync) {
-      el.notesList.innerHTML = '<div class="loading-placeholder">正在从 GitHub 云端同步最新笔记与思维导图...</div>';
+      el.notesList.innerHTML = '<div class="loading-placeholder">正在同步最新笔记与资料...</div>';
     }
     let cloudNotes = [];
     let localNotes = [];
+    let fetched = false;
 
-    // 1. Try fetching live GitHub Releases
-    try {
-      const res = await fetch(GITHUB_RELEASES_API);
-      if (res.ok) {
-        const releases = await res.json();
-        if (Array.isArray(releases) && releases.length > 0) {
-          cloudNotes = releases.map(transformReleaseToNote);
-          localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
+    // 1. If running on local server, fetch from local releases proxy (0ms & offline resilient)
+    if (isLocalServer) {
+      try {
+        const url = isManualSync ? '/api/releases?force=1' : '/api/releases';
+        const res = await fetch(url);
+        if (res.ok) {
+          const releases = await res.json();
+          if (Array.isArray(releases) && releases.length > 0) {
+            cloudNotes = releases.map(transformReleaseToNote);
+            localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
+            fetched = true;
+          }
         }
+      } catch (_) {}
+    }
+
+    // 2. If not on local server or proxy unavailable, fetch directly from GitHub API
+    if (!fetched) {
+      try {
+        const res = await fetch(GITHUB_RELEASES_API);
+        if (res.ok) {
+          const releases = await res.json();
+          if (Array.isArray(releases) && releases.length > 0) {
+            cloudNotes = releases.map(transformReleaseToNote);
+            localStorage.setItem('starwhite_releases_cache', JSON.stringify(cloudNotes));
+            fetched = true;
+          }
+        }
+      } catch (e) {
+        console.warn('GitHub API fetch failed:', e);
       }
-    } catch (e) {
-      console.warn('GitHub API fetch failed (offline or rate limit), reading cache:', e);
+    }
+
+    // 3. Fallback to cache if network fetch failed
+    if (!fetched) {
       const cached = localStorage.getItem('starwhite_releases_cache');
       if (cached) {
         try { cloudNotes = JSON.parse(cached); } catch (_) {}
@@ -422,6 +532,7 @@
             ${n.files.map(doc => {
               const icon = getFileIcon(doc.name);
               const fileUrl = resolveAssetUrl(doc);
+              const canPreview = isPreviewableFile(doc.name);
               return `
                 <div class="bound-doc-item">
                   <div class="bound-doc-info">
@@ -432,9 +543,11 @@
                     </div>
                   </div>
                   <div class="bound-doc-actions">
-                    <button class="btn btn-xs btn-outline preview-doc-btn" data-url="${escapeHTML(fileUrl)}" data-name="${escapeHTML(doc.name)}" data-size="${doc.size || ''}" title="在线完整预览">
-                      <span>👁️</span> 预览
-                    </button>
+                    ${canPreview ? `
+                      <button class="btn btn-xs btn-outline preview-doc-btn" data-url="${escapeHTML(fileUrl)}" data-name="${escapeHTML(doc.name)}" data-size="${doc.size || ''}" title="在线完整预览">
+                        <span>👁️</span> 预览
+                      </button>
+                    ` : ''}
                     <a class="btn btn-xs btn-primary download-doc-btn" href="${escapeHTML(fileUrl)}" download="${escapeHTML(doc.name)}" title="下载原文件">
                       <span>⬇️</span> 下载
                     </a>
@@ -588,6 +701,7 @@
       el.readerDocsList.innerHTML = note.files.map(doc => {
         const icon = getFileIcon(doc.name);
         const url = resolveAssetUrl(doc);
+        const canPreview = isPreviewableFile(doc.name);
         return `
           <div class="bound-doc-item">
             <div class="bound-doc-info">
@@ -598,9 +712,11 @@
               </div>
             </div>
             <div class="bound-doc-actions">
-              <button class="btn btn-xs btn-outline reader-preview-btn" data-url="${escapeHTML(url)}" data-name="${escapeHTML(doc.name)}" data-size="${doc.size || ''}">
-                <span>👁️</span> 在线预览
-              </button>
+              ${canPreview ? `
+                <button class="btn btn-xs btn-outline reader-preview-btn" data-url="${escapeHTML(url)}" data-name="${escapeHTML(doc.name)}" data-size="${doc.size || ''}">
+                  <span>👁️</span> 在线预览
+                </button>
+              ` : ''}
               <a class="btn btn-xs btn-primary" href="${escapeHTML(url)}" download="${escapeHTML(doc.name)}">
                 <span>⬇️</span> 下载文件
               </a>
@@ -657,6 +773,18 @@
   }
 
   async function openFilePreview(fileUrl, fileName, fileSize = '') {
+    // 严格限制: 仅图片、文档 (docx/pptx/xlsx/pdf) 和 md 文件允许弹窗预览
+    if (!isPreviewableFile(fileName)) {
+      const a = document.createElement('a');
+      a.href = fileUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast(`该格式不支持在线预览，已直接开始下载: ${fileName}`);
+      return;
+    }
+
     resetPreviewFullscreen();
     el.previewFileIcon.textContent = getFileIcon(fileName);
     el.previewFileName.textContent = fileName;
@@ -665,7 +793,7 @@
     el.previewDownloadBtn.setAttribute('download', fileName);
 
     const ext = fileName.split('.').pop().toLowerCase();
-    const isOffice = ['docx', 'doc', 'xlsx', 'xls', 'csv'].includes(ext);
+    const isOffice = ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'csv'].includes(ext);
 
     if (el.previewHeaderActionBtn) {
       el.previewHeaderActionBtn.href = fileUrl;
@@ -792,24 +920,54 @@
       return;
     }
 
-    // 5. VIDEOS & AUDIOS
-    if (['mp4', 'webm'].includes(ext)) {
-      el.previewContainer.innerHTML = `<video src="${fileUrl}" controls autoplay style="max-width:100%; max-height:100%; border-radius:8px;"></video>`;
-      return;
-    }
-    if (['mp3', 'wav', 'ogg'].includes(ext)) {
-      el.previewContainer.innerHTML = `<audio src="${fileUrl}" controls autoplay style="width:100%; max-width:480px;"></audio>`;
+    // 5. POWERPOINT 演示文档 (.pptx / .ppt)
+    if (ext === 'pptx' || ext === 'ppt') {
+      el.previewContainer.innerHTML = `
+        <div class="pptx-preview-card" style="text-align:center; padding:3rem 1.5rem; background:var(--bg-card); border-radius:12px; border:1px solid var(--border-color); max-width:540px; margin:2rem auto; box-shadow:0 8px 30px rgba(0,0,0,0.15);">
+          <div style="font-size:3.5rem; margin-bottom:1rem;">📙</div>
+          <h3 style="margin-bottom:0.5rem; font-size:1.25rem; color:var(--text-main); font-weight:600;">${escapeHTML(fileName)}</h3>
+          <p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.75rem; line-height:1.6;">
+            PowerPoint 幻灯片演示文稿 (${fileSize ? formatBytes(fileSize) : 'PPT课件'})<br>
+            可通过本地局域网高速下载原件，支持在 PowerPoint 或 WPS 中完整放映与编辑。
+          </p>
+          <a class="btn btn-primary" href="${fileUrl}" download="${fileName}" style="padding:0.75rem 2rem; font-size:1rem; display:inline-flex; align-items:center; gap:0.5rem;">
+            <span>⬇️</span> 立即下载 PPT 演示文稿
+          </a>
+        </div>
+      `;
+      el.previewHintText.textContent = 'PowerPoint 演示文稿（支持全速下载到本地放映）';
       return;
     }
 
-    // 6. CODE & TEXT
-    try {
-      const res = await fetch(fileUrl);
-      const text = await res.text();
-      el.previewContainer.innerHTML = `<pre style="padding:1.5rem; margin:0; width:100%; height:100%; overflow:auto; background:var(--bg-surface); color:var(--text-main); font-family:Consolas,monospace; font-size:0.9rem; line-height:1.6; border-radius:6px;"><code>${escapeHTML(text)}</code></pre>`;
-    } catch (err) {
-      el.previewContainer.innerHTML = `<div class="loading-placeholder" style="color:#fff;">纯文本读取失败: ${err.message}</div>`;
+    // 6. MARKDOWN 文档 (.md / .markdown)
+    if (ext === 'md' || ext === 'markdown') {
+      try {
+        const res = await fetch(fileUrl);
+        const text = await res.text();
+        el.previewContainer.innerHTML = `
+          <div class="md-preview-container" style="padding:2rem; width:100%; height:100%; overflow:auto; background:var(--bg-card); color:var(--text-main); line-height:1.8; border-radius:8px;">
+            <div class="markdown-body" style="max-width:850px; margin:0 auto;">
+              ${renderMarkdown(text)}
+            </div>
+          </div>
+        `;
+        el.previewHintText.textContent = 'Markdown 笔记文档渲染模式';
+      } catch (err) {
+        el.previewContainer.innerHTML = `<div class="loading-placeholder" style="color:#fff;">Markdown 读取失败: ${err.message}</div>`;
+      }
+      return;
     }
+
+    // 7. 任何其他非图片、非文档文件：严禁预览，直接提示下载
+    el.previewContainer.innerHTML = `
+      <div style="text-align:center; padding:3rem 1.5rem; color:#fff;">
+        <div style="font-size:3rem; margin-bottom:1rem;">📁</div>
+        <h3>该格式不支持在线预览</h3>
+        <p style="margin-top:0.5rem; opacity:0.85;">请直接下载后使用本地对应软件打开查看</p>
+        <a class="btn btn-primary" href="${fileUrl}" download="${fileName}" style="margin-top:1.5rem;">⬇️ 立即下载原文件</a>
+      </div>
+    `;
+    el.previewHintText.textContent = '专有格式文件（请下载后在专业软件中查看）';
   }
 
   // --- Copy Share Card ---
@@ -921,20 +1079,58 @@
       };
     }
 
-    // CDN Toggle
+    // Acceleration Line Toggle (Cycles through Local, Mirror, jsDelivr, Direct)
     if (el.cdnTogglePill) {
-      el.cdnTogglePill.onclick = () => {
-        cdnEnabled = !cdnEnabled;
-        localStorage.setItem('starwhite_cdn_enabled', cdnEnabled ? 'true' : 'false');
-        updateCdnUI();
-        renderNotes();
-        showToast(cdnEnabled ? '⚡ 已开启全球 CDN 极速加速（国内秒开，默认已开启）' : '🌐 已切换为 GitHub 官方源直连模式', 'info');
+      el.cdnTogglePill.onclick = cycleAccelMode;
+    }
+
+    // Wi-Fi Sharing Modal
+    const wifiShareBtn = document.getElementById('wifiShareBtn');
+    const wifiShareModal = document.getElementById('wifiShareModal');
+    const closeWifiModalBtn = document.getElementById('closeWifiModalBtn');
+    const copyWifiUrlBtn = document.getElementById('copyWifiUrlBtn');
+    const wifiAddressCode = document.getElementById('wifiAddressCode');
+    const wifiQrCodeImg = document.getElementById('wifiQrCodeImg');
+
+    if (wifiShareBtn && wifiShareModal) {
+      wifiShareBtn.onclick = async () => {
+        wifiShareModal.style.display = 'flex';
+        if (isLocalServer) {
+          try {
+            const res = await fetch('/api/network-info');
+            if (res.ok) {
+              const data = await res.json();
+              if (data.lanUrl && wifiAddressCode) {
+                wifiAddressCode.textContent = data.lanUrl;
+                if (wifiQrCodeImg) {
+                  wifiQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(data.lanUrl)}`;
+                }
+              }
+            }
+          } catch (_) {}
+        }
+      };
+    }
+
+    if (closeWifiModalBtn && wifiShareModal) {
+      closeWifiModalBtn.onclick = () => { wifiShareModal.style.display = 'none'; };
+    }
+
+    if (copyWifiUrlBtn && wifiAddressCode) {
+      copyWifiUrlBtn.onclick = () => {
+        const text = wifiAddressCode.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('✅ 链接已复制到剪贴板，可发送到手机微信或QQ！', 'success');
+        }).catch(() => {
+          prompt('请复制此局域网地址：', text);
+        });
       };
     }
 
     // Close modals on clicking overlay backdrop
     window.onclick = (e) => {
       if (el.noteReaderModal && e.target === el.noteReaderModal) el.noteReaderModal.style.display = 'none';
+      if (wifiShareModal && e.target === wifiShareModal) wifiShareModal.style.display = 'none';
       if (el.filePreviewModal && e.target === el.filePreviewModal) {
         resetPreviewFullscreen();
         el.filePreviewModal.style.display = 'none';
