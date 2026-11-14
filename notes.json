@@ -1,130 +1,30 @@
 [
   {
-    "id": "%E6%95%B0%E5%AD%A6-%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8",
-    "title": "基本不等式及其应用",
+    "id": "%E8%8B%B1%E8%AF%AD-%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89",
+    "title": "阅读理解推断题（下）",
     "tags": [
-      "数学"
-    ],
-    "date": "2026-11-12",
-    "created_at": "2026-11-12 17:33:52",
-    "content": "该专题包含相关板书截图与思维导图资料。",
-    "images": [
-      {
-        "name": "default.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/default.png",
-        "size": 256548
-      }
-    ],
-    "files": [
-      {
-        "name": "map1.xmind",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/map1.xmind",
-        "size": 273888
-      }
-    ]
-  },
-  {
-    "id": "%E7%89%A9%E7%90%86-%E7%9B%B8%E9%81%87%E8%BF%BD%E5%8F%8A",
-    "title": "相遇追及",
-    "tags": [
-      "物理"
-    ],
-    "date": "2026-11-12",
-    "created_at": "2026-11-12 17:33:53",
-    "content": "该专题包含相关板书截图与思维导图资料。",
-    "images": [
-      {
-        "name": "IMG_20261113_194601.jpg",
-        "url": "notes/%E7%89%A9%E7%90%86/%E7%9B%B8%E9%81%87%E8%BF%BD%E5%8F%8A/IMG_20261113_194601.jpg",
-        "size": 2459256
-      }
-    ],
-    "files": []
-  },
-  {
-    "id": "%E6%95%B0%E5%AD%A6-%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0",
-    "title": "绝对值不等式与函数",
-    "tags": [
-      "数学"
+      "英语"
     ],
     "date": "2026-11-14",
-    "created_at": "2026-11-14 11:24:07",
-    "content": "该专题包含相关板书截图与思维导图资料。",
+    "created_at": "2026-11-14 19:14:58",
+    "content": "## 一、写作意图题常见信号词\n- purpose, intend to, aim to, want to, in order to\n\n## 二、解题策略\n- 1. 推断写作意图 / 目的：\n  - ① 主旨推断法：根据文章或段落**主旨**推断作者的写作目的\n  - ② 文体推断法：\n    - 议论文：说服读者接受某个观点（1个观点）\n    - 说明文：介绍某一事物\n    - 记叙文：讲述故事或分享经历，表达感悟\n    - 广告应用文：推销产品、服务，吸引顾客\n    - 新闻：to inform / report\n- 2. 判断文章出处：\n  - 题干设置：be from, come from, be taken, appear\n  - 干扰选项：paper, novel, text book\n- 3. 推断观点态度：\n  - 解题关键：明确“问谁”，以及“对什么事”\n- 4. 推测下一段内容：\n  - 寻找线索：重点关注最后一段反复提及的名词",
     "images": [
       {
-        "name": "default.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/default.png",
-        "size": 940449
+        "name": "阅读理解之推理判断题（下）.png",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.png",
+        "size": 89672
       },
       {
-        "name": "MAP.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/MAP.png",
-        "size": 345289
+        "name": "阅读理解推理判断下.png",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E4%B8%8B.png",
+        "size": 334952
       }
     ],
     "files": [
       {
-        "name": "default.xmind",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/default.xmind",
-        "size": 278390
-      }
-    ]
-  },
-  {
-    "id": "%E6%95%B0%E5%AD%A6-%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F",
-    "title": "二次函数与一元二次方程，不等式",
-    "tags": [
-      "数学"
-    ],
-    "date": "2026-11-14",
-    "created_at": "2026-11-14 11:29:58",
-    "content": "该专题包含相关板书截图与思维导图资料。",
-    "images": [
-      {
-        "name": "default.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/default.png",
-        "size": 251204
-      },
-      {
-        "name": "map.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/map.png",
-        "size": 176018
-      }
-    ],
-    "files": [
-      {
-        "name": "default.xmind",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/default.xmind",
-        "size": 232437
-      }
-    ]
-  },
-  {
-    "id": "%E6%95%B0%E5%AD%A6-%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF",
-    "title": "导数-曲线的切线与公切线",
-    "tags": [
-      "数学"
-    ],
-    "date": "2026-11-14",
-    "created_at": "2026-11-14 12:06:20",
-    "content": "该专题包含相关板书截图与思维导图资料。",
-    "images": [
-      {
-        "name": "default.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/default.png",
-        "size": 453997
-      },
-      {
-        "name": "map.png",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/map.png",
-        "size": 157372
-      }
-    ],
-    "files": [
-      {
-        "name": "default.xmind",
-        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/default.xmind",
-        "size": 195975
+        "name": "阅读理解之推理判断题（下）.xmind",
+        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.xmind",
+        "size": 157022
       }
     ]
   },
@@ -158,31 +58,131 @@
     ]
   },
   {
-    "id": "%E8%8B%B1%E8%AF%AD-%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89",
-    "title": "阅读理解推断题（下）",
+    "id": "%E6%95%B0%E5%AD%A6-%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF",
+    "title": "导数-曲线的切线与公切线",
     "tags": [
-      "英语"
+      "数学"
     ],
     "date": "2026-11-14",
-    "created_at": "2026-11-14 19:14:58",
-    "content": "## 一、写作意图题常见信号词\n- purpose, intend to, aim to, want to, in order to\n\n## 二、解题策略\n- 1. 推断写作意图 / 目的：\n  - ① 主旨推断法：根据文章或段落**主旨**推断作者的写作目的\n  - ② 文体推断法：\n    - 议论文：说服读者接受某个观点（1个观点）\n    - 说明文：介绍某一事物\n    - 记叙文：讲述故事或分享经历，表达感悟\n    - 广告应用文：推销产品、服务，吸引顾客\n    - 新闻：to inform / report\n- 2. 判断文章出处：\n  - 题干设置：be from, come from, be taken, appear\n  - 干扰选项：paper, novel, text book\n- 3. 推断观点态度：\n  - 解题关键：明确“问谁”，以及“对什么事”\n- 4. 推测下一段内容：\n  - 寻找线索：重点关注最后一段反复提及的名词",
+    "created_at": "2026-11-14 12:06:20",
+    "content": "该专题包含相关板书截图与思维导图资料。",
     "images": [
       {
-        "name": "阅读理解之推理判断题（下）.png",
-        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.png",
-        "size": 89672
+        "name": "default.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/default.png",
+        "size": 453997
       },
       {
-        "name": "阅读理解推理判断下.png",
-        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E4%B8%8B.png",
-        "size": 334952
+        "name": "map.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/map.png",
+        "size": 157372
       }
     ],
     "files": [
       {
-        "name": "阅读理解之推理判断题（下）.xmind",
-        "url": "notes/%E8%8B%B1%E8%AF%AD/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E6%8E%A8%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89/%E9%98%85%E8%AF%BB%E7%90%86%E8%A7%A3%E4%B9%8B%E6%8E%A8%E7%90%86%E5%88%A4%E6%96%AD%E9%A2%98%EF%BC%88%E4%B8%8B%EF%BC%89.xmind",
-        "size": 157022
+        "name": "default.xmind",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%AF%BC%E6%95%B0-%E6%9B%B2%E7%BA%BF%E7%9A%84%E5%88%87%E7%BA%BF%E4%B8%8E%E5%85%AC%E5%88%87%E7%BA%BF/default.xmind",
+        "size": 195975
+      }
+    ]
+  },
+  {
+    "id": "%E6%95%B0%E5%AD%A6-%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F",
+    "title": "二次函数与一元二次方程，不等式",
+    "tags": [
+      "数学"
+    ],
+    "date": "2026-11-14",
+    "created_at": "2026-11-14 11:29:58",
+    "content": "该专题包含相关板书截图与思维导图资料。",
+    "images": [
+      {
+        "name": "default.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/default.png",
+        "size": 251204
+      },
+      {
+        "name": "map.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/map.png",
+        "size": 176018
+      }
+    ],
+    "files": [
+      {
+        "name": "default.xmind",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E4%BA%8C%E6%AC%A1%E5%87%BD%E6%95%B0%E4%B8%8E%E4%B8%80%E5%85%83%E4%BA%8C%E6%AC%A1%E6%96%B9%E7%A8%8B%EF%BC%8C%E4%B8%8D%E7%AD%89%E5%BC%8F/default.xmind",
+        "size": 232437
+      }
+    ]
+  },
+  {
+    "id": "%E6%95%B0%E5%AD%A6-%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0",
+    "title": "绝对值不等式与函数",
+    "tags": [
+      "数学"
+    ],
+    "date": "2026-11-14",
+    "created_at": "2026-11-14 11:24:07",
+    "content": "该专题包含相关板书截图与思维导图资料。",
+    "images": [
+      {
+        "name": "default.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/default.png",
+        "size": 940449
+      },
+      {
+        "name": "MAP.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/MAP.png",
+        "size": 345289
+      }
+    ],
+    "files": [
+      {
+        "name": "default.xmind",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E7%BB%9D%E5%AF%B9%E5%80%BC%E4%B8%8D%E7%AD%89%E5%BC%8F%E4%B8%8E%E5%87%BD%E6%95%B0/default.xmind",
+        "size": 278390
+      }
+    ]
+  },
+  {
+    "id": "%E7%89%A9%E7%90%86-%E7%9B%B8%E9%81%87%E8%BF%BD%E5%8F%8A",
+    "title": "相遇追及",
+    "tags": [
+      "物理"
+    ],
+    "date": "2026-11-12",
+    "created_at": "2026-11-12 17:33:53",
+    "content": "该专题包含相关板书截图与思维导图资料。",
+    "images": [
+      {
+        "name": "IMG_20261113_194601.jpg",
+        "url": "notes/%E7%89%A9%E7%90%86/%E7%9B%B8%E9%81%87%E8%BF%BD%E5%8F%8A/IMG_20261113_194601.jpg",
+        "size": 2459256
+      }
+    ],
+    "files": []
+  },
+  {
+    "id": "%E6%95%B0%E5%AD%A6-%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8",
+    "title": "基本不等式及其应用",
+    "tags": [
+      "数学"
+    ],
+    "date": "2026-11-12",
+    "created_at": "2026-11-12 17:33:52",
+    "content": "该专题包含相关板书截图与思维导图资料。",
+    "images": [
+      {
+        "name": "default.png",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/default.png",
+        "size": 256548
+      }
+    ],
+    "files": [
+      {
+        "name": "map1.xmind",
+        "url": "notes/%E6%95%B0%E5%AD%A6/%E5%9F%BA%E6%9C%AC%E4%B8%8D%E7%AD%89%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/map1.xmind",
+        "size": 273888
       }
     ]
   }

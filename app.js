@@ -72,6 +72,8 @@
     tagsList: document.getElementById('tagsList'),
     notesFilterHint: document.getElementById('notesFilterHint'),
     notesList: document.getElementById('notesList'),
+    sortOrderBtn: document.getElementById('sortOrderBtn'),
+    sortOrderLabel: document.getElementById('sortOrderLabel'),
 
     // Note Reader Modal
     noteReaderModal: document.getElementById('noteReaderModal'),
@@ -344,24 +346,49 @@
     };
   }
 
-  function applyNotes(combinedList, isFromSync = false) {
-    if (!Array.isArray(combinedList) || combinedList.length === 0) return;
+  let sortOrder = localStorage.getItem('starwhite_sort_order') || 'desc';
 
-    // 按创建时间先后顺序排序（从早到晚，保证上集在前、下集在后）
-    notes = combinedList.slice().sort((a, b) => (a.created_at || a.date || '').localeCompare(b.created_at || b.date || ''));
+  function sortNotesAndTags() {
+    // 严格按真实创建时间戳排序
+    notes.sort((a, b) => {
+      const timeA = a.created_at || a.date || '';
+      const timeB = b.created_at || b.date || '';
+      return sortOrder === 'asc' ? timeA.localeCompare(timeB) : timeB.localeCompare(timeA);
+    });
 
-    // 标签页按对应笔记的最早创建时间顺序排序
-    const tagFirstCreated = new Map();
+    // 标签页严格按照对应分类笔记的真实时间戳排序
+    const tagTimeMap = new Map();
     for (const n of notes) {
-      const created = n.created_at || n.date || '';
+      const nTime = n.created_at || n.date || '';
       (n.tags || []).forEach(t => {
         const tag = t ? t.trim() : '';
-        if (tag && !tagFirstCreated.has(tag)) {
-          tagFirstCreated.set(tag, created);
+        if (tag) {
+          if (!tagTimeMap.has(tag)) {
+            tagTimeMap.set(tag, nTime);
+          } else {
+            const prev = tagTimeMap.get(tag);
+            if (sortOrder === 'asc' ? nTime.localeCompare(prev) < 0 : nTime.localeCompare(prev) > 0) {
+              tagTimeMap.set(tag, nTime);
+            }
+          }
         }
       });
     }
-    allTags = Array.from(tagFirstCreated.keys());
+
+    allTags = Array.from(tagTimeMap.keys()).sort((a, b) => {
+      return sortOrder === 'asc' ? tagTimeMap.get(a).localeCompare(tagTimeMap.get(b)) : tagTimeMap.get(b).localeCompare(tagTimeMap.get(a));
+    });
+
+    if (el.sortOrderLabel) {
+      el.sortOrderLabel.textContent = sortOrder === 'desc' ? '最新优先' : '最早优先';
+    }
+  }
+
+  function applyNotes(combinedList, isFromSync = false) {
+    if (!Array.isArray(combinedList) || combinedList.length === 0) return;
+
+    notes = combinedList.slice();
+    sortNotesAndTags();
 
     let totalFiles = 0;
     for (const n of notes) {
@@ -552,7 +579,7 @@
               <div class="note-tags">
                 ${(n.tags || []).map(t => `<span class="badge badge-tag" data-tag="${escapeHTML(t)}">#${escapeHTML(t)}</span>`).join('')}
               </div>
-              <span class="note-date">${n.date || ''}</span>
+              <span class="note-date" title="创建时间: ${n.created_at || n.date || ''}">📅 ${n.created_at ? n.created_at.slice(0, 16) : (n.date || '')}</span>
             </div>
             <h3 class="note-title reader-trigger" data-id="${n.id}" title="点击阅读全文">${escapeHTML(n.title)}</h3>
           </div>
@@ -653,7 +680,7 @@
     if (!note) return;
 
     el.readerTitle.textContent = note.title;
-    el.readerDate.textContent = note.date || '';
+    el.readerDate.textContent = note.created_at || note.date || '';
     el.readerTags.innerHTML = (note.tags || []).map(t => `<span class="badge badge-tag">#${escapeHTML(t)}</span>`).join('');
 
     // Remove any duplicate heading matching the note title at the beginning of content
@@ -1202,6 +1229,18 @@
       el.globalSearch.oninput = (e) => {
         searchQuery = e.target.value;
         renderNotes();
+      };
+    }
+
+    // Sort Order Toggle (时间顺序/倒序切换)
+    if (el.sortOrderBtn) {
+      el.sortOrderBtn.onclick = () => {
+        sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+        localStorage.setItem('starwhite_sort_order', sortOrder);
+        sortNotesAndTags();
+        renderTagsBar();
+        renderNotes();
+        showToast(sortOrder === 'desc' ? '已按创建时间倒序排列（最新优先）' : '已按创建时间正序排列（最早优先）', 'info');
       };
     }
 

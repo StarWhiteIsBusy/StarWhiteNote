@@ -159,8 +159,8 @@ def run():
                 "files": files
             })
 
-    # 按创建时间先后顺序正向排序 (从早到晚，保证上集在前，下集在后)
-    notes_list.sort(key=lambda x: x.get("created_at", x.get("date", "")))
+    # 严格按照创建时间先后顺序排序（默认最新在前，倒序排列）
+    notes_list.sort(key=lambda x: x.get("created_at", x.get("date", "")), reverse=True)
 
     json_str = json.dumps(notes_list, ensure_ascii=False, indent=2)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as fp:
