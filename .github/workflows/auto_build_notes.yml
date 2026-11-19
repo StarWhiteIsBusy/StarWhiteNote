@@ -37,6 +37,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "没有检测到索引变动，无需提交。"
           else
-            git commit -m "🤖 [自动更新] 扫描 notes 目录并更新知识库索引 [skip ci]"
+            git commit -m "🤖 [自动更新] 扫描 notes 目录并更新知识库索引"
+            git pull origin main --rebase
             git push origin main
           fi

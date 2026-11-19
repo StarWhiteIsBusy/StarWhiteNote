@@ -479,13 +479,18 @@
               if (el.readerTitle && el.readerTitle.textContent === n.title && el.readerContent) {
                 el.readerContent.innerHTML = renderMarkdown(clean);
               }
-              const card = document.querySelector(`.note-card[data-id="${n.id}"] .note-content-preview`);
+              const card = Array.from(document.querySelectorAll('.note-card')).find(c => c.dataset.id === n.id);
               if (card) {
-                card.innerHTML = renderMarkdown(clean);
+                const preview = card.querySelector('.note-content-preview');
+                if (preview) {
+                  preview.innerHTML = renderMarkdown(clean);
+                }
               }
             }
           }
-        } catch (_) {}
+        } catch (err) {
+          console.warn('Failed to load markdown for', n.title, err);
+        }
       }
     }
   }
@@ -799,6 +804,26 @@
     el.readerTitle.textContent = note.title;
     el.readerDate.textContent = note.created_at || note.date || '';
     el.readerTags.innerHTML = (note.tags || []).map(t => `<span class="badge badge-tag">#${escapeHTML(t)}</span>`).join('');
+
+    // 若正文仍为占位提示且存在 mdUrl，则立即异步补拉 MD 正文
+    if (note.mdUrl && (!note.content || note.content === '该专题包含相关板书截图与思维导图资料。')) {
+      fetch(`${note.mdUrl}?_t=${Date.now()}`).then(r => r.ok ? r.text() : '').then(raw => {
+        if (raw) {
+          let clean = raw.trim().replace(/^#+\s*(\r?\n)*/, '');
+          if (clean) {
+            note.content = clean;
+            if (el.readerTitle && el.readerTitle.textContent === note.title && el.readerContent) {
+              el.readerContent.innerHTML = renderMarkdown(clean);
+            }
+            const card = Array.from(document.querySelectorAll('.note-card')).find(c => c.dataset.id === note.id);
+            if (card) {
+              const preview = card.querySelector('.note-content-preview');
+              if (preview) preview.innerHTML = renderMarkdown(clean);
+            }
+          }
+        }
+      }).catch(() => {});
+    }
 
     // Remove any duplicate heading matching the note title at the beginning of content
     let cleanContent = (note.content || '').trim();
