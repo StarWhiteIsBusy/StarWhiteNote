@@ -495,6 +495,37 @@
     }
   }
 
+  async function enrichBrandNewNoteTimestamps(brandNewList) {
+    let hasUpdate = false;
+    for (const n of brandNewList) {
+      const subject = (n.tags && n.tags[0]) || '';
+      if (!subject || !n.title) continue;
+      try {
+        const pathParam = encodeURIComponent(`notes/${subject}/${n.title}`);
+        const res = await fetch(`https://api.github.com/repos/StarWhiteIsBusy/StarWhiteNote/commits?path=${pathParam}&per_page=1`);
+        if (res.ok) {
+          const list = await res.json();
+          if (Array.isArray(list) && list.length > 0) {
+            const rawDate = list[0]?.commit?.committer?.date || list[0]?.commit?.author?.date;
+            if (rawDate) {
+              const dt = new Date(rawDate);
+              const offsetMs = dt.getTimezoneOffset() * 60000;
+              const localIso = new Date(dt.getTime() - offsetMs).toISOString();
+              n.created_at = localIso.replace('T', ' ').slice(0, 19);
+              n.date = localIso.slice(0, 10);
+              hasUpdate = true;
+            }
+          }
+        }
+      } catch (_) {}
+    }
+    if (hasUpdate) {
+      sortNotesAndTags();
+      renderTagsBar();
+      renderNotes();
+    }
+  }
+
   async function loadNotesData(isManualSync = false) {
     if (el.notesList && !isManualSync && notes.length === 0) {
       el.notesList.innerHTML = '<div class="loading-placeholder">正在自动扫描 GitHub 目录检测新笔记...</div>';
@@ -531,6 +562,7 @@
           if (liveNotes.length > 0) {
             // 合并已有 notes.json 中的真实时间戳与 Markdown 正文
             const oldMap = new Map((notes || []).map(n => [n.title, n]));
+            const brandNewNotes = [];
             liveNotes.forEach(ln => {
               const old = oldMap.get(ln.title);
               if (old) {
@@ -539,6 +571,8 @@
                 if (old.content && old.content !== '该专题包含相关板书截图与思维导图资料。') {
                   ln.content = old.content;
                 }
+              } else {
+                brandNewNotes.push(ln);
               }
             });
 
@@ -548,6 +582,9 @@
             if (liveTitles !== currentTitles || !loadedFromStatic) {
               applyNotes(liveNotes, isManualSync);
               loadMarkdownForNotes(liveNotes);
+              if (brandNewNotes.length > 0) {
+                enrichBrandNewNoteTimestamps(brandNewNotes);
+              }
               return;
             }
           }
