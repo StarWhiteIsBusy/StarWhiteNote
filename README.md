@@ -1,56 +1,107 @@
-# ⭐ StarWhiteNote | 个人笔记与资料分享站 (GitHub Pages 极速纯静态版)
+# StarWhiteNote
 
-> **GitHub Pages 免费托管 · 多线国内极速镜像源 · 毫秒级即时加载 · 严格文档排版预览**
+一个纯静态、免后端的个人学科笔记与学习资料共享站点。基于 GitHub Pages 部署，绑定独立域名，开箱即用。
 
-<p align="center">
-  <a href="https://starwhitenote.xyz/"><img src="https://img.shields.io/badge/Website-访问主页-2563EB?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Website"></a>
-  <a href="https://github.com/StarWhiteIsBusy/StarWhiteNote"><img src="https://img.shields.io/badge/GitHub-仓库主页-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Repo"></a>
-  <a href="https://github.com/StarWhiteIsBusy/StarWhiteNote/releases"><img src="https://img.shields.io/badge/Releases-发布新笔记-10B981?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Releases"></a>
-</p>
+- 访问地址：[https://starwhitenote.xyz](https://starwhitenote.xyz)
+- 备用地址：[https://starwhiteisbusy.github.io/StarWhiteNote/](https://starwhiteisbusy.github.io/StarWhiteNote/)
 
 ---
 
-## 🌐 网站专属在线地址
+## 目录结构说明
 
-👉 **[https://starwhitenote.xyz/](https://starwhitenote.xyz/)** （独立顶级域名）
-备用地址：[https://starwhiteisbusy.github.io/StarWhiteNote/](https://starwhiteisbusy.github.io/StarWhiteNote/)
+所有笔记与附件均存放在 `notes/` 目录下，按照 `notes/学科/专题名称/` 的层级进行维护：
 
-- **零成本永久运行**：完全托管在 GitHub Pages，不需要任何服务器或数据库。
-- **免登录公开畅读**：任何人打开网址即可直接阅读全部笔记、预览文档排版与高速下载资料。
+```text
+notes/
+├── 数学/
+│   └── 导数-曲线的切线与公切线/
+│       ├── 导数-曲线的切线与公切线.md   # 笔记正文（Markdown 格式，可选）
+│       ├── 板书.png                    # 板书截图或思维导图预览（支持在线查看与缩放）
+│       └── 思维导图.xmind              # 附件资料（支持单文件或打包下载）
+├── 物理/
+│   └── 弹簧模型中的能量动量问题/
+│       └── 截图.png
+└── 化学/
+    └── 电解质与非电解质/
+        ├── 电解质与非电解质.md
+        ├── 电解质与非电解质.png
+        └── 电解质与非电解质.xmind
+```
 
----
-
-## ⚡ 为什么现在打开速度飞快？
-
-针对国内访问 GitHub 慢、图片加载卡顿的问题，本版本深度升级了三大加速引擎：
-
-1. **🚀 50毫秒级即时直出（首屏秒开）**：
-   - 网页优先从 GitHub Pages 边缘 CDN 读取静态索引，**打开网页 50ms 内瞬间呈现所有笔记卡片**，绝不白屏等待；
-   - 随后在后台静默请求 GitHub Releases 同步最新版本，实现平滑无感更新。
-2. **🛡️ 多线国内极速镜像源 + 自动容灾**：
-   - 内置 **GH-Proxy 专线、GHProxy.net、Mirror.ghproxy、Akams** 等多条国内高速镜像；
-   - **自动失败重试**：当一张图片在当前节点加载慢或失败时，网页会自动无缝切换至下一条镜像重试，确保图片 100% 秒级加载！
-   - 点击顶部药丸按钮，也可手动自由切换线路。
-3. **🎯 严格规范的在线预览过滤**：
-   - **允许在线预览**：
-     - **图片**：PNG, JPG, JPEG, GIF, WebP, SVG（自适应缩略画廊，点击放大）
-     - **文档**：Word (`.docx`), PPT (`.pptx`), Excel (`.xlsx`), PDF (`.pdf`)
-     - **笔记正文**：Markdown (`.md`) 高保真排版渲染
-   - **专有格式严格直接下载**：
-     - 思维导图 (`.xmind`)、分层绘图 (`.ora`)、白板 (`.excalidraw`)、压缩包 (`.zip`, `.rar`) 等**非图片非文档文件不出现预览窗口，一键直接高速下载**，保留原工程完整格式。
+- **Markdown 正文**：若目录下存在 `.md` 文件，将提取为文章正文，在卡片预览与独立阅读器中排版展示。
+- **图片资料**（PNG、JPG、WebP 等）：卡片内展示缩略图，点击后进入大图模式，支持鼠标滚轮无级缩放与拖拽平移。
+- **附件文件**（XMind、Docx、Xlsx、PDF、Zip 等）：思维导图等专有格式提供直接下载，Office/PDF 支持预览，支持将单篇笔记下的所有附件一键打包（Zip）下载。
 
 ---
 
-## 📝 怎样管理与发布新笔记？
+## 功能特性
 
-直接在 GitHub 网页端操作，无需安装任何本地环境或运行脚本：
+- **纯静态架构**：无需服务器与数据库，依赖静态生成的 `notes.json` 索引文件，打开即可浏览。
+- **双层同步机制**：
+  - 默认读取本地静态索引，加载迅速；
+  - 若在 GitHub 网页端刚上传新文件、云端尚未重新生成索引，前端会自动通过 GitHub API 探测新目录并提取时间戳与正文，无缝衔接。
+- **阅读与交互**：
+  - **阅读器弹窗**：提供清晰的 Markdown 阅读界面，自动过滤重复的一级标题。
+  - **图片预览**：画廊布局，支持滚轮缩放、自适应居中与拖拽平移。
+  - **一键打包**：当单篇笔记包含多个附件或图片时，支持一键生成 Zip 压缩包下载全部资源。
+- **检索与筛选**：
+  - 支持按学科标签快速筛选，动态统计各分类篇数。
+  - 实时全局搜索，支持搜索标题、标签、正文内容及附件文件名。
+  - 支持切换时间排序（最新发布优先 / 最早发布优先）。
+- **网络适配**：
+  - 内置多组 GitHub 资源加速节点（如 gh-proxy 等），资源加载失败时自动切换备用节点重试，也支持手动切换线路。
+- **界面与主题**：
+  - 支持深色 / 浅色模式切换。
+  - 针对桌面端与移动端分别做了排版适配。
 
-1. **直接进入学科目录**：
-   - 打开 GitHub 仓库，进入 `notes/` 对应的科目文件夹（如 `notes/数学/`、`notes/英语/`、`notes/物理/`）；
-2. **新建文章目录并上传资料**：
-   - 点击右上角 **【Add file】 ➔ 【Upload files】**（或 **【Create new file】** 创建 Markdown 正文）；
-   - 以文章标题命名子文件夹（如 `notes/数学/平面向量的数量积/`）；
-   - 将导出的思维导图 (`.xmind`)、笔记正文 (`.md`)、板书截图 (`.png`) 拖入保存；
-3. **云端全自动构建发布**：
-   - 提交保存（Commit changes）后，GitHub Actions 云端机器人会在 10 秒内全自动更新知识库全景索引；
-   - GitHub Pages 全球 CDN 将在 30 秒内自动完成全网部署上线！
+---
+
+## 添加与更新笔记
+
+### 方式一：GitHub 网页端直接添加（无需本地环境）
+
+1. 进入仓库的 `notes/` 目录，进入或新建对应的学科文件夹（如 `notes/化学/`）。
+2. 在该学科下新建一个以专题命名的子文件夹，将整理好的 `.md`、图片或 `.xmind` 拖拽上传。
+3. 提交更改（Commit changes）后，GitHub Actions 会自动运行构建脚本更新 `notes.json` 索引，并触发 GitHub Pages 发布。
+
+### 方式二：本地管理与推送
+
+1. 克隆仓库到本地：
+   ```bash
+   git clone https://github.com/StarWhiteIsBusy/StarWhiteNote.git
+   cd StarWhiteNote
+   ```
+2. 将整理好的资料放入 `notes/学科/专题名称/` 下。
+3. 运行本地构建脚本更新索引：
+   ```bash
+   python build_notes.py
+   ```
+   脚本会扫描目录、根据 Git 提交记录提取真实创建时间、清洗 Markdown 标题并生成格式化的 `notes.json`。
+4. 提交并推送到 GitHub：
+   ```bash
+   git add .
+   git commit -m "add: 新增某专题笔记"
+   git push origin main
+   ```
+
+---
+
+## 本地预览
+
+本项目为纯静态前端，使用任意静态 HTTP 服务即可打开：
+
+```bash
+# Python 3
+python -m http.server 8080
+
+# 或使用 Node.js
+npx serve .
+```
+
+浏览器打开 `http://localhost:8080` 即可查看。
+
+---
+
+## 开源协议
+
+本项目采用 [MIT License](LICENSE) 授权。
